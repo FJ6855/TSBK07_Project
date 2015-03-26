@@ -6,7 +6,7 @@ Initiering:
 
 git init
 
-git remote add Project https://github.com/FJ6855/TSBK07_Project.git
+git remote add Project https://YOUR_USERNAME@github.com/FJ6855/TSBK07_Project.git
 
 Ladda ner filer:
 
@@ -24,4 +24,4 @@ git status
 
 Ladda upp filer:
 
-git push
+git push Project master
