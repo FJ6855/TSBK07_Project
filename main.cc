@@ -6,20 +6,21 @@ InputHandler* inputHandler;
 Renderer* renderer;
 
 void run();
-void init();
+void init(int argc, char* argv[]);
 
 
 int main(int argc, char* argv[])
 {
-    init();
+    init(argc, argv);
+
     return 0;
 }
 
-void init()
+void init(int argc, char* argv[])
 {
   glutInit(&argc, argv);
   glutInitContextVersion(3, 2);
-  glutCreateWindow("GL3 white triangle example");
+  glutCreateWindow("Project");
   glutDisplayFunc(run);
   
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);

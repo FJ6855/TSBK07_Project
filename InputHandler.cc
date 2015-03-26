@@ -14,7 +14,7 @@ InputHandler::~InputHandler()
 {
 
 }
-
+/*
 void InputHandler::handleInput(SDL_Event* e)
 {
 	if (e->type == SDL_KEYDOWN)
@@ -77,4 +77,4 @@ float InputHandler::getMouseX()
 float InputHandler::getMouseY()
 {
 	return _mouseY;
-}
+	}*/

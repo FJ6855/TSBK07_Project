@@ -16,8 +16,8 @@ Renderer.o : Renderer.cc Renderer.h
 GL_utilites.o : GL_utilites.c GL_utilites.h
 	$(CCC2) -c GL_utilities.c
 
-Microglut.o : Microglut.c Microglut.h
-	$(CCC2) -c Microglut.c
+MicroGlut.o : MicroGlut.c MicroGlut.h
+	$(CCC2) -c MicroGlut.c
 
 clean :
 	rm main.o InputHandler.o Renderer.o GL_utilities.o MicroGlut.o

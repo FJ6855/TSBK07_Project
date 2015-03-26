@@ -1,8 +1,6 @@
 #ifndef INPUTHANDLER_H
 #define INPUTHANDLER_H
 
-#include "SDL2/include/SDL2/SDL.h"
-
 class InputHandler
 {
 public:
@@ -283,7 +281,7 @@ public:
 
 	InputHandler();
 	~InputHandler();
-
+/*
 	void handleInput(SDL_Event* e);
 	void reset();
 	bool getKeyDown(int key);
@@ -293,7 +291,7 @@ public:
 	float getMouseRelY();
 
 	float getMouseX();
-	float getMouseY();
+	float getMouseY();*/
 
 private:
 	bool _keysDown[NUM_KEYS];
