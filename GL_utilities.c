@@ -222,17 +222,17 @@ char keymap[256];
 
 char keyIsDown(unsigned char c)
 {
-	return keymap[(unsigned int)c];
+    return keymap[(unsigned int)c];
 }
 
 void keyUp(unsigned char key, int x, int y)
 {
-	keymap[(unsigned int)key] = 0;
+    keymap[(unsigned int)key] = 0;
 }
 
 void keyDown(unsigned char key, int x, int y)
 {
-	keymap[(unsigned int)key] = 1;
+    keymap[(unsigned int)key] = 1;
 }
 
 void initKeymapManager()

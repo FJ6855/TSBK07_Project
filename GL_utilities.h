@@ -22,6 +22,7 @@ void dumpInfo(void);
 
 void initKeymapManager();
 char keyIsDown(unsigned char c);
+char keyIsPressed(unsigned char c);
 
 // FBO support
 

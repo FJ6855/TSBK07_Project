@@ -176,42 +176,42 @@ make_window( Display *dpy, const char *name,
 	wmDeleteMessage = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
 	XSetWMProtocols(dpy, win, &wmDeleteMessage, 1); // Register
 
-   /* set hints and properties */
-      XSizeHints sizehints;
-      sizehints.x = x;
-      sizehints.y = y;
-      sizehints.width  = width;
-      sizehints.height = height;
-      sizehints.flags = USSize | USPosition;
-      XSetNormalHints(dpy, win, &sizehints);
-      XSetStandardProperties(dpy, win, name, name,
-                              None, (char **)NULL, 0, &sizehints);
+	/* set hints and properties */
+	XSizeHints sizehints;
+	sizehints.x = x;
+	sizehints.y = y;
+	sizehints.width  = width;
+	sizehints.height = height;
+	sizehints.flags = USSize | USPosition;
+	XSetNormalHints(dpy, win, &sizehints);
+	XSetStandardProperties(dpy, win, name, name,
+			       None, (char **)NULL, 0, &sizehints);
 
-   if (!ctx)
-   {
-      printf("Error: glXCreateContext failed\n");
-      exit(1);
-   }
+	if (!ctx)
+	{
+	    printf("Error: glXCreateContext failed\n");
+	    exit(1);
+	}
 
-   XFree(visinfo);
+	XFree(visinfo);
 
-   *winRet = win;
-   *ctxRet = ctx;
+	*winRet = win;
+	*ctxRet = ctx;
 }
 
 void glutCreateWindow(char *windowTitle)
 {
-   dpy = XOpenDisplay(NULL);
-   if (!dpy)
-   {
-      printf("Error: couldn't open display %s\n",
-	     windowTitle ? windowTitle : getenv("DISPLAY"));
-   }
+    dpy = XOpenDisplay(NULL);
+    if (!dpy)
+    {
+	printf("Error: couldn't open display %s\n",
+	       windowTitle ? windowTitle : getenv("DISPLAY"));
+    }
 
-   make_window(dpy, windowTitle, winPosX, winPosY, winWidth, winHeight, &win, &ctx);
+    make_window(dpy, windowTitle, winPosX, winPosY, winWidth, winHeight, &win, &ctx);
    
-   XMapWindow(dpy, win);
-   glXMakeCurrent(dpy, win, ctx);
+    XMapWindow(dpy, win);
+    glXMakeCurrent(dpy, win, ctx);
 }
 
 void (*gDisplay)(void);
@@ -226,22 +226,22 @@ void (*gMouseFunc)(int button, int state, int x, int y);
 
 void glutReshapeFunc(void (*func)(int width, int height))
 {
-	gReshape = func;
+    gReshape = func;
 }
 void glutDisplayFunc(void (*func)(void))
 {
-	gDisplay = func;
+    gDisplay = func;
 }
 void glutIdleFunc(void (*func)(void))
 {gIdle = func;}
 
 void glutKeyboardFunc(void (*func)(unsigned char key, int x, int y))
 {
-	gKey = func;
+    gKey = func;
 }
 void glutKeyboardUpFunc(void (*func)(unsigned char key, int x, int y))
 {
-	gKeyUp = func;
+    gKeyUp = func;
 }
 
 void glutMouseFunc(void (*func)(int button, int state, int x, int y))
@@ -255,91 +255,104 @@ char gButtonPressed[10] = {0,0,0,0,0,0,0,0,0,0};
 
 void glutMainLoop()
 {
-	char buffer[10];
-	int r; // code;
-	char done = 0;
+    char buffer[10];
+    int r; // code;
+    char done = 0;
 
-	char pressed = 0;
-	int i;
+    char pressed = 0;
+    int i;
 
-	XAllowEvents(dpy, AsyncBoth, CurrentTime);
+    XAllowEvents(dpy, AsyncBoth, CurrentTime);
 
-	while (!done)
+    while (!done)
+    {
+	int op = 0;
+	while (XPending(dpy) > 0)
 	{
-      int op = 0;
-      while (XPending(dpy) > 0)
-      {
-         XEvent event;
-         XNextEvent(dpy, &event);
 
-         switch (event.type)
-         {
-         	case ClientMessage:
-         		if (event.xclient.data.l[0] == wmDeleteMessage) // quit!
-         			done = 1;
-	         	break;
-         	case Expose: 
-			op = 1; break; // Update event! Should do draw here.
-         	case ConfigureNotify:
-				if (gReshape)
-	      			gReshape(event.xconfigure.width, event.xconfigure.height);
-				else
-				{
-					glViewport(0, 0, event.xconfigure.width, event.xconfigure.height);
-				}
-      			break;
-      		case KeyPress:
-      		case KeyRelease:
-		        r = XLookupString(&event.xkey, buffer, sizeof(buffer),
-                              NULL, NULL);
+	    XEvent event;
+	    XNextEvent(dpy, &event);
 
-      			if (event.type == KeyPress)
-	      		{	if (gKey) gKey(buffer[0], 0, 0); gKeymap[(int)buffer[0]] = 1;}
-	      		else
-	      		{	if (gKeyUp) gKeyUp(buffer[0], 0, 0); gKeymap[(int)buffer[0]] = 0;}
+	    switch (event.type)
+	    {
+	    case ClientMessage:
+		if (event.xclient.data.l[0] == wmDeleteMessage) // quit!
+		    done = 1;
+		break;
+	    case Expose: 
+		op = 1; break; // Update event! Should do draw here.
+	    case ConfigureNotify:
+		if (gReshape)
+		    gReshape(event.xconfigure.width, event.xconfigure.height);
+		else
+		{
+		    glViewport(0, 0, event.xconfigure.width, event.xconfigure.height);
+		}
+		break;
+	    case KeyPress:
+	    case KeyRelease:
+		
+		r = XLookupString(&event.xkey, buffer, sizeof(buffer),
+				  NULL, NULL);
+
+		if (event.type == KeyPress)
+		{	
+		    if (gKey) 
+			gKey(buffer[0], 0, 0); 
+		    
+		    gKeymap[(int)buffer[0]] = 1;
+		}
+		else
+		{	if (gKeyUp) gKeyUp(buffer[0], 0, 0); gKeymap[(int)buffer[0]] = 0;}
 //	      		{	if (gKey) gKey(buffer[0], 0, 0);}
 //	      		else
 //	      		{	if (gKeyUp) gKeyUp(buffer[0], 0, 0);}
-      			break;
-			case ButtonPress:
-				gButtonPressed[event.xbutton.button] = 1;
-				if (gMouseFunc != NULL)
-					gMouseFunc(GLUT_LEFT_BUTTON, GLUT_DOWN, event.xbutton.x, event.xbutton.y);
-				break;
-			case ButtonRelease:
-				gButtonPressed[event.xbutton.button] = 0;
-				if (gMouseFunc != NULL)
-					gMouseFunc(GLUT_LEFT_BUTTON, GLUT_UP, event.xbutton.x, event.xbutton.y);
-				break;
-		case MotionNotify:
-				pressed = 0;
-				for (i = 0; i < 5; i++)
-					if (gButtonPressed[i]) pressed = 1;
-					if (pressed && gMouseDragged)
-						gMouseDragged(event.xbutton.x, event.xbutton.y);
-					else
-					if (gMouseMoved)
-						gMouseMoved(event.xbutton.x, event.xbutton.y);
-				break;
+		break;
+	    case ButtonPress:
+		gButtonPressed[event.xbutton.button] = 1;
+		if (gMouseFunc != NULL)
+		    gMouseFunc(GLUT_LEFT_BUTTON, GLUT_DOWN, event.xbutton.x, event.xbutton.y);
+		break;
+	    case ButtonRelease:
+		gButtonPressed[event.xbutton.button] = 0;
+		if (gMouseFunc != NULL)
+		    gMouseFunc(GLUT_LEFT_BUTTON, GLUT_UP, event.xbutton.x, event.xbutton.y);
+		break;
+	    case MotionNotify:
+		pressed = 0;
+		for (i = 0; i < 5; i++)
+		    if (gButtonPressed[i]) pressed = 1;
+		if (pressed && gMouseDragged)
+		    gMouseDragged(event.xbutton.x, event.xbutton.y);
+		else
+		    if (gMouseMoved)
+			gMouseMoved(event.xbutton.x, event.xbutton.y);
+		break;
 
-		default:
-			break;
-         }
-      }
+	    default:
+		break;
+	    }
+	}
       
-      if (animate)
-      {
-      	animate = 0;
-		if (gDisplay)
-		  	gDisplay();
-		else
-			printf("No display function!\n");
-      	op = 0;
-      }
-		else
-		if (gIdle) gIdle();
-      checktimers();
-   }
+	if (animate)
+	{
+	    animate = 0;
+
+	    if (gDisplay)	
+	    {
+		gDisplay();
+	    }
+	    else
+	    {
+		printf("No display function!\n");
+	    }
+	    
+	    op = 0;
+	}
+	else
+	    if (gIdle) gIdle();
+	checktimers();
+    }
 
 	glXMakeCurrent(dpy, None, NULL);
    glXDestroyContext(dpy, ctx);
