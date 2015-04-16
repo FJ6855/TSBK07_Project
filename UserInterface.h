@@ -12,6 +12,7 @@ public:
     ~UserInterface();
 
     void update();
+    void moveMouse(int mouseX, int mouseY, int windowWidth, int windowHeight);
 
 private:
     Logic* _logic;

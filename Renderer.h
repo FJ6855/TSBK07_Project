@@ -24,6 +24,8 @@ public:
     ~Renderer();
 
     void render();
+
+    GLuint getProgram();
     
 private:
     void _initSystems();

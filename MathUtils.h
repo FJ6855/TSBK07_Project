@@ -8,6 +8,15 @@
 #define M_PI           3.14159265358979323846
 #endif
 
+struct vec2
+{
+vec2() : x(0), y(0) {}
+vec2(GLfloat x2, GLfloat y2) : x(x2), y(y2) {}
+    
+    GLfloat x;
+    GLfloat y;
+};
+
 struct vec3
 {
 	vec3() : x(0), y(0), z(0) {}

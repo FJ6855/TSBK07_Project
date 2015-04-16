@@ -16,7 +16,7 @@ Renderer::Renderer(Logic* logic)
     glUseProgram(_shader);
     printError("load shaders");
 
-    _cube = LoadModelPlus("cubeplus.obj");
+    //_cube = LoadModelPlus("cubeplus.obj");
     
     printError("load model");
     
@@ -43,11 +43,25 @@ void Renderer::render()
 
     glUseProgram(_shader);
 
-    _modelMatrix = T(0.0f, 0.0f, -10.0f);
+    //DrawModel(_cube, _shader, "inPosition", "inNormal", NULL);
 
-    glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
+    for (int i = 0; i < _logic->getWorld()->chunks.size(); i++)
+    {
+	Chunk* chunk = _logic->getWorld()->chunks.at(i);
 
-    DrawModel(_cube, _shader, "inPosition", "inNormal", NULL);
+	_modelMatrix = T(chunk->getPos().x, chunk->getPos().y, chunk->getPos().z);
+	
+	glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
+
+	glBindVertexArray(chunk->getVao());
+	
+	glDrawArrays(GL_TRIANGLES, 0, chunk->getNumVertices());
+    }
 
     glutSwapBuffers();
+}
+
+GLuint Renderer::getProgram()
+{
+    return _shader;
 }

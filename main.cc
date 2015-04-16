@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "Logic.h"
 #include "UserInterface.h"
+#include "stdio.h"
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
@@ -13,6 +14,7 @@ UserInterface* userInterface;
 void run();
 void init(int argc, char* argv[]);
 void displayTimer(int);
+void mouseMovement(int x, int y);
 
 int main(int argc, char* argv[])
 {
@@ -32,14 +34,23 @@ void init(int argc, char* argv[])
 
   glutDisplayFunc(run);
 
+ 
   logic = new Logic();
+
 
   renderer = new Renderer(logic);
 
+
+  logic->createWorld(renderer->getProgram());
+
+
   userInterface = new UserInterface(logic);
-  
+
   initKeymapManager();
   glutTimerFunc(20, &displayTimer, 0);
+
+  glutPassiveMotionFunc(mouseMovement);
+ 
   glutMainLoop();
 }
 
@@ -60,4 +71,9 @@ void run()
     
     //render
     renderer->render();
+}
+
+void mouseMovement(int x, int y)
+{
+    userInterface->moveMouse(x, y, (int)WINDOW_WIDTH, (int)WINDOW_HEIGHT);
 }
