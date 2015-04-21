@@ -1,22 +1,18 @@
 #include "Chunk.h"
 #include <stdio.h>
 
-Chunk::Chunk(GLuint program)
+Chunk::Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ)
 {   
     _program = program;
 
-    for (int y = 0; y < CHUNK_HEIGHT; y++)
-    {
-	for (int x = 0; x < CHUNK_WIDTH; x++)
-	{
-	    for (int z = 0; z < CHUNK_DEPTH; z++)
-	    {
-	
-		_activeBlocks.push_back(true);
-		 
-	    }
-	}
-    }
+    _chunkWidth = chunkWidth;
+    _chunkHeight = chunkHeight;
+    _chunkDepth = chunkDepth;
+
+    _activeBlocks.resize(chunkWidth * chunkHeight * chunkDepth);
+    
+    _setFull();
+    _setHeightmap(heightmap, heightmapX, heightmapZ);
 
    glGenVertexArrays(1, &_vao);
 /*
@@ -88,41 +84,67 @@ Chunk::Chunk(GLuint program)
     _generateChunk();
 }
 
-/*Chunk::Chunk(TextureData* heightMap)
-{
-
-}*/
-
 Chunk::~Chunk()
 {
 
 }
 
+void Chunk::_setFull()
+{
+    std::fill(_activeBlocks.begin(), _activeBlocks.end(), true);
+}
+
+void Chunk::_setEmpty()
+{
+    std::fill(_activeBlocks.begin(), _activeBlocks.end(), false);
+}
+
+void Chunk::_setHeightmap(TextureData* heightmap, int heightmapX, int heightmapZ)
+{    
+    for (int y = 0; y < _chunkHeight; y++)
+    {
+	for (int x = heightmapX; x < _chunkWidth + heightmapX; x++)
+	{
+	    for (int z = heightmapZ; z < _chunkDepth + heightmapZ; z++)
+	    {	
+		if (y <= heightmap->imageData[(x + z * heightmap->width) * (heightmap->bpp / 8)] / 10.0f)
+		{
+		    _activeBlocks.at((z - heightmapZ) + (x - heightmapX) * _chunkDepth + y * _chunkDepth * _chunkWidth) = true;
+		}		 
+		else
+		{
+		    _activeBlocks.at((z - heightmapZ) + (x - heightmapX) * _chunkDepth + y * _chunkDepth * _chunkWidth) = false;
+		}
+	    }
+	}
+    }
+}
+
 void Chunk::_generateChunk()
 {
  
-    Vertex _vertices[(CHUNK_HEIGHT * CHUNK_WIDTH * CHUNK_DEPTH) * 36];
+    Vertex _vertices[(_chunkHeight * _chunkWidth * _chunkDepth) * 36];
    
     _numVertices = 0;
     
     glGenBuffers(1, &_vbo);
     glBindVertexArray(_vao);
 
-    for (int y = 0; y < CHUNK_HEIGHT; y++)
+    for (int y = 0; y < _chunkHeight; y++)
     {
-	for (int x = 0; x < CHUNK_WIDTH; x++)
+	for (int x = 0; x < _chunkWidth; x++)
 	{
-	    for (int z = 0; z < CHUNK_DEPTH; z++)
+	    for (int z = 0; z < _chunkDepth; z++)
 	    {
-		if (_activeBlocks.at(z + x * CHUNK_DEPTH + y * CHUNK_DEPTH * CHUNK_WIDTH))
+		if (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth))
 		{
 		    for(int i = 0; i < 36 ; i++)
 		    {
        
-			_vertices[(z + x * CHUNK_DEPTH + y * CHUNK_DEPTH * CHUNK_WIDTH)*36 + i] = _cube[i];
-			_vertices[(z + x * CHUNK_DEPTH + y * CHUNK_DEPTH * CHUNK_WIDTH)*36 + i].pos.x += x;
-			_vertices[(z + x * CHUNK_DEPTH + y * CHUNK_DEPTH * CHUNK_WIDTH)*36 + i].pos.y += y;
-			_vertices[(z + x * CHUNK_DEPTH + y * CHUNK_DEPTH * CHUNK_WIDTH)*36 + i].pos.z += z;
+			_vertices[(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth)*36 + i] = _cube[i];
+			_vertices[(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth)*36 + i].pos.x += x;
+			_vertices[(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth)*36 + i].pos.y += y;
+			_vertices[(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth)*36 + i].pos.z += z;
 		    }
 		    
 		    _numVertices += 36;

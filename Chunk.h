@@ -5,16 +5,12 @@
 #include "Vertex.h"
 #include "MathUtils.h"
 #include "GL/gl.h"
-
-#define CHUNK_HEIGHT 16
-#define CHUNK_WIDTH 16
-#define CHUNK_DEPTH 16
+#include "LoadTGA.h"
 
 class Chunk
 {
 public:
-    Chunk(GLuint program);
-    //Chunk(TextureData* heightMap);
+    Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ);
     
     ~Chunk();
 
@@ -23,8 +19,14 @@ public:
     void setPos(vec3 pos);
     vec3 getPos();
 
-private:
-    //TextureData* _heightMap;  
+private: 
+    int _chunkWidth;
+    int _chunkHeight;
+    int _chunkDepth;
+    
+    int _heightmapX;
+    int _heightmapZ;
+
     vec3 _pos;
     
     int _numVertices;
@@ -38,6 +40,10 @@ private:
     GLuint _program;
 
     void _generateChunk();
+
+    void _setFull();
+    void _setEmpty();
+    void _setHeightmap(TextureData* heightmap, int heightmapX, int heightmapZ);
 };
 
 #endif

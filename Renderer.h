@@ -8,8 +8,8 @@
 #include "MathUtils.h"
 #include "Logic.h"
 
-#define near .1
-#define far 1000.0
+#define near 0.1
+#define far 500.0
 #define right 0.5
 #define left -0.5
 #define top 0.5

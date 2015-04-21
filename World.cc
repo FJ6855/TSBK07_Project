@@ -5,26 +5,23 @@ World::World(GLuint program)
     _generateWorld(program);
 }
 
-/*World::World(TextureData* heightMap)
-{
-    _heightMap = heightMap;
-
-    _generateWorld();
-    }*/
-
 World::~World()
 {
-    // delete _heightMap;
-    //_heightMap = nullptr;
+    //delete _heightmap;
+    //_heightmap = NULL;
 }
 
 void World::_generateWorld(GLuint program)
 {
-    for(int z = 0; z < 4; z++)
+    TextureData _heightmap;
+
+    LoadTGATextureData("fft-terrain2.tga", &_heightmap);
+
+    for(int z = 0; z < WORLD_DEPTH; z++)
     {
-	for(int x = 0; x < 4; x++)
+	for(int x = 0; x < WORLD_WIDTH; x++)
 	{
-	    Chunk* c = new Chunk(program);
+	    Chunk* c = new Chunk(program, &_heightmap, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_DEPTH, x * CHUNK_WIDTH, z * CHUNK_DEPTH);
 
 	    c->setPos(vec3(x*16, 0, z*16));
 

@@ -31,18 +31,14 @@ void init(int argc, char* argv[])
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
   glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
   glutCreateWindow("Project");
-
+  glEnable(GL_CULL_FACE);
   glutDisplayFunc(run);
 
- 
   logic = new Logic();
-
 
   renderer = new Renderer(logic);
 
-
   logic->createWorld(renderer->getProgram());
-
 
   userInterface = new UserInterface(logic);
 
