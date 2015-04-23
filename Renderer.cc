@@ -16,7 +16,8 @@ Renderer::Renderer(Logic* logic)
     glUseProgram(_shader);
     printError("load shaders");
 
-    //_cube = LoadModelPlus("cubeplus.obj");
+    glUniform1i(glGetUniformLocation(_shader, "tex"), 0);
+    LoadTGATextureSimple("stone.tga", &stoneTexture);
     
     printError("load model");
     
@@ -42,8 +43,6 @@ void Renderer::render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(_shader);
-
-    //DrawModel(_cube, _shader, "inPosition", "inNormal", NULL);
 
     for (int i = 0; i < _logic->getWorld()->chunks.size(); i++)
     {

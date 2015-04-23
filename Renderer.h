@@ -8,7 +8,7 @@
 #include "MathUtils.h"
 #include "Logic.h"
 
-#define near 0.1
+#define near 1
 #define far 500.0
 #define right 0.5
 #define left -0.5
@@ -36,9 +36,9 @@ private:
     
     GLuint _shader;
 
-    Model* _cube;
-
     Logic* _logic;
+
+    GLuint stoneTexture;
 };
 
 #endif

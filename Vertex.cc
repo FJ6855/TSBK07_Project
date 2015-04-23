@@ -7,9 +7,10 @@ Vertex::Vertex()
     texCoord = vec2();
 }
 
-Vertex::Vertex(vec3 p, vec3 n, vec2 t)
+Vertex::Vertex(vec3 p, vec3 n, vec2 t, GLfloat lightV)
 {
     pos = p;
     normal = n;
     texCoord = t;
+    lightValue = lightV;
 }
