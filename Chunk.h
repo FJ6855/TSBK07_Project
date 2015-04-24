@@ -19,6 +19,8 @@ public:
     void setPos(vec3 pos);
     vec3 getPos();
 
+    bool isBlockActive(int index);
+
 private: 
     int _chunkWidth;
     int _chunkHeight;
@@ -33,6 +35,7 @@ private:
 
     Vertex _cube[36];
     std::vector<bool> _activeBlocks;
+    //std::vector<Block*> _blocks;
 
     GLuint _vao;
     GLuint _vbo;
@@ -44,6 +47,7 @@ private:
     void _setFull();
     void _setEmpty();
     void _setHeightmap(TextureData* heightmap, int heightmapX, int heightmapZ);
+    void _setTest();
 };
 
 #endif

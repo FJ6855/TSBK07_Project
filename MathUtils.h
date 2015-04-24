@@ -50,6 +50,7 @@ mat4 Rx(GLfloat a);
 mat4 Ry(GLfloat a);
 mat4 Rz(GLfloat a);
 mat4 T(GLfloat tx, GLfloat ty, GLfloat tz);
+mat4 TVec3(vec3 t);
 mat4 S(GLfloat sx, GLfloat sy, GLfloat sz);
 mat4 Mult(mat4 a, mat4 b);
 vec3 MultVec3(mat4 a, vec3 b);

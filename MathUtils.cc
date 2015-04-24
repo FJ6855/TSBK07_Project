@@ -146,6 +146,11 @@ mat4 T(GLfloat tx, GLfloat ty, GLfloat tz)
 	return m;
 }
 
+mat4 TVec3(vec3 t)
+{
+    return T(t.x, t.y, t.z);
+}
+
 mat4 S(GLfloat sx, GLfloat sy, GLfloat sz)
 {
 	mat4 m;

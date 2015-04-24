@@ -4,7 +4,7 @@ UserInterface::UserInterface(Logic* logic)
 {
     _logic = logic;
 
-    _movementSpeed = 0.1f;
+    _movementSpeed = 0.05f;
 }
 
 UserInterface::~UserInterface()
@@ -14,6 +14,8 @@ UserInterface::~UserInterface()
 
 void UserInterface::update()
 {
+    _logic->getPlayer()->setMoving(false);
+
     if (keyIsDown('p'))
     {
 	_movementSpeed += 0.1f;
@@ -54,8 +56,8 @@ void UserInterface::moveMouse(int mouseX, int mouseY, int windowWidth, int windo
 
   glutWarpPointer(midX, midY);
 
-  float angleY = (float)(midX - mouseX) / 5000;
-  float angleZ = (float)(midY - mouseY) / 5000;
+  float angleY = (float)(midX - mouseX) / 2000;
+  float angleZ = (float)(midY - mouseY) / 2000;
   
   _logic->rotateCamera(angleZ, -angleY);
 }

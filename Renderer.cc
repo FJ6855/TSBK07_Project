@@ -16,7 +16,7 @@ Renderer::Renderer(Logic* logic)
     glUseProgram(_shader);
     printError("load shaders");
 
-    //_cube = LoadModelPlus("cubeplus.obj");
+    _cube = LoadModelPlus("cubeplus.obj");
     
     printError("load model");
     
@@ -43,7 +43,11 @@ void Renderer::render()
 
     glUseProgram(_shader);
 
-    //DrawModel(_cube, _shader, "inPosition", "inNormal", NULL);
+    /*_modelMatrix = T(_logic->getPlayer()->getPosition().x, _logic->getPlayer()->getPosition().y, _logic->getPlayer()->getPosition().z);
+
+    glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
+
+    DrawModel(_cube, _shader, "inPosition", "inNormal", NULL);*/
 
     for (int i = 0; i < _logic->getWorld()->chunks.size(); i++)
     {
