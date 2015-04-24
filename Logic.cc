@@ -144,12 +144,9 @@ Player* Logic::getPlayer()
 
 void Logic::_gravity()
 {
-    vec3 playerPos = _player->getPosition();
+    vec3 playerPos = _player->getNextPosition();
 
-    if (_player->getMoving())
-	playerPos = _player->getNextPosition();
-
-    playerPos.y -= 0.05f;
+    playerPos.y -= 0.3f;
 
     if (floor(playerPos.y) != floor(_player->getPosition().y))
     {
@@ -178,7 +175,11 @@ void Logic::_gravity()
     {
 	if (floor(playerPos.x + .2f * _player->getDirection().x) != floor(_player->getPosition().x))
 	{
-	    Chunk* c = _world->getChunkAtPosition(playerPos);
+	    vec3 tmp = playerPos;
+	    
+	    tmp.x += .2f * _player->getDirection().x;	    
+
+	    Chunk* c = _world->getChunkAtPosition(tmp);
 	    
 	    if (c != NULL)
 	    {
@@ -206,8 +207,12 @@ void Logic::_gravity()
 	}
 	
 	if (floor(playerPos.z + .2f * _player->getDirection().z) != floor(_player->getPosition().z))
-	{
-	    Chunk* c = _world->getChunkAtPosition(playerPos);
+	{	    
+	    vec3 tmp = playerPos;
+	    
+	    tmp.z += .2f * _player->getDirection().z;	    
+
+	    Chunk* c = _world->getChunkAtPosition(tmp);
 	    
 	    if (c != NULL)
 	    {
@@ -237,7 +242,7 @@ void Logic::_gravity()
     }
     
     _player->setPosition(playerPos);
-    //_player->setNextPosition(playerPos);
+    _player->setNextPosition(playerPos);
 
     //printf("player pos: %f, %f, %f\n", _player->getPosition().x, _player->getPosition().y, _player->getPosition().z); 
 

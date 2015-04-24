@@ -1,4 +1,5 @@
 #include "Player.h"
+#include <stdio.h>
 
 Player::Player()
 {
@@ -44,4 +45,9 @@ bool Player::getMoving()
 void Player::setMoving(bool moving)
 {
     _moving = moving;
+}
+
+void Player::jump()
+{
+    _nextPosition.y += 0.8f;
 }

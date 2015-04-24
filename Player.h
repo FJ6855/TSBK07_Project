@@ -20,6 +20,8 @@ public:
 
     bool getMoving();
     void setMoving(bool moving);
+
+    void jump();
     
 private:
     vec3 _position;

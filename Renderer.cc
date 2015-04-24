@@ -16,7 +16,8 @@ Renderer::Renderer(Logic* logic)
     glUseProgram(_shader);
     printError("load shaders");
 
-    _cube = LoadModelPlus("cubeplus.obj");
+    glUniform1i(glGetUniformLocation(_shader, "tex"), 0);
+    LoadTGATextureSimple("stone.tga", &stoneTexture);
     
     printError("load model");
     
