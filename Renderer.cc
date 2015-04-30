@@ -13,11 +13,49 @@ Renderer::Renderer(Logic* logic)
     glEnable(GL_DEPTH_TEST);
 
     _shader = loadShaders("shader.vert", "shader.frag");
-    glUseProgram(_shader);
+
+    _skyboxShader = loadShaders("skyboxShader.vert", "skyboxShader.frag");
+
     printError("load shaders");
 
-    glUniform1i(glGetUniformLocation(_shader, "tex"), 0);
+    //skybox
+    
+    glUseProgram(_skyboxShader);
+
+    _skyboxModel = LoadModelPlus("skybox.obj");
+
+    glGenBuffers(1, &_skyboxTexture); 
+    
+    glActiveTexture(GL_TEXTURE0);
+ 
+    glBindTexture(GL_TEXTURE_2D, _skyboxTexture);
+    /*
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    */
+    glUniform1i(glGetUniformLocation(_skyboxShader, "texUnit"), 0);
+
+    LoadTGATextureSimple("skybox.tga", &_skyboxTexture);
+
+    //stones
+    glUseProgram(_shader);
+    
+    glGenBuffers(1, &stoneTexture);
+
+    glActiveTexture(GL_TEXTURE1);
+
+    glBindTexture(GL_TEXTURE_2D, stoneTexture);
+
     LoadTGATextureSimple("stone.tga", &stoneTexture);
+
+    glUniform1i(glGetUniformLocation(_shader, "tex"), 1);
     
     printError("load model");
     
@@ -30,26 +68,57 @@ Renderer::~Renderer()
 }
 
 void Renderer::_initSystems() 
-{      
+{   
+    glUseProgram(_shader);
     glUniformMatrix4fv(glGetUniformLocation(_shader, "projectionMatrix"), 1, GL_TRUE, _projectionMatrix.m);
+
+    glUseProgram(_skyboxShader);
+    glUniformMatrix4fv(glGetUniformLocation(_skyboxShader, "projectionMatrix"), 1, GL_TRUE, _projectionMatrix.m);
 }
 
 void Renderer::render()
-{ 
-    _viewMatrix = lookAtv(_logic->getCameraPos(), _logic->getCameraLookAt(), _logic->getCameraUp());
-
-    glUniformMatrix4fv(glGetUniformLocation(_shader, "viewMatrix"), 1, GL_TRUE, _viewMatrix.m);
-
+{
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    _viewMatrix = lookAtv(_logic->getCameraPos(), _logic->getCameraLookAt(), _logic->getCameraUp());
+    
+    //skybox
+    glUseProgram(_skyboxShader);
+
+    glDisable(GL_DEPTH_TEST);
+ 
+    glDisable(GL_CULL_FACE);
+
+    glActiveTexture(GL_TEXTURE0);
+
+    glBindTexture(GL_TEXTURE_2D, _skyboxTexture);
+  
+    glUniformMatrix4fv(glGetUniformLocation(_skyboxShader, "viewMatrix"), 1, GL_TRUE, _viewMatrix.m);
+    
+    _modelMatrix = T(_logic->getCameraPos().x, _logic->getCameraPos().y+0.05 , _logic->getCameraPos().z);
+
+    glUniformMatrix4fv(glGetUniformLocation(_skyboxShader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
+
+    DrawModel(_skyboxModel, _skyboxShader, "in_Position", NULL, "in_Tex_Coord");
+
+    glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_CULL_FACE);
 
     glUseProgram(_shader);
 
+    glActiveTexture(GL_TEXTURE1);
+
+    glBindTexture(GL_TEXTURE_2D, stoneTexture);
+
+    glUniformMatrix4fv(glGetUniformLocation(_shader, "viewMatrix"), 1, GL_TRUE, _viewMatrix.m);
+    
     /*_modelMatrix = T(_logic->getPlayer()->getPosition().x, _logic->getPlayer()->getPosition().y, _logic->getPlayer()->getPosition().z);
 
     glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
 
     DrawModel(_cube, _shader, "inPosition", "inNormal", NULL);*/
-
+    
     for (int i = 0; i < _logic->getWorld()->chunks.size(); i++)
     {
 	Chunk* chunk = _logic->getWorld()->chunks.at(i);
