@@ -39,6 +39,12 @@ private:
     Logic* _logic;
 
     GLuint stoneTexture;
+
+    Model* _skyboxModel;
+    
+    GLuint  _skyboxShader;
+    
+    GLuint _skyboxTexture;
 };
 
 #endif
