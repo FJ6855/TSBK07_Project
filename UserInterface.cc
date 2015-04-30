@@ -4,7 +4,7 @@ UserInterface::UserInterface(Logic* logic)
 {
     _logic = logic;
 
-    _movementSpeed = 0.2f;
+    _movementSpeed = 0.01f;
 }
 
 UserInterface::~UserInterface()
@@ -14,41 +14,50 @@ UserInterface::~UserInterface()
 
 void UserInterface::update()
 {
-    _logic->getPlayer()->setMoving(false);
-
     if (keyIsDown('p'))
     {
-	_movementSpeed += 0.1f;
+	_movementSpeed += 0.01f;
     }
 
     if (keyIsDown('o') && _movementSpeed > 0.0f)
     {
-	_movementSpeed -= 0.1f;
+	_movementSpeed -= 0.01f;
     }	
 
     if (keyIsDown('w'))
     {
-	_logic->moveCamera(_movementSpeed);
+	_logic->move(_movementSpeed);
     }
 
     if (keyIsDown('s'))
     {
-	_logic->moveCamera(-_movementSpeed);
+	_logic->move(-_movementSpeed);
     }
 
     if (keyIsDown('a'))
     {
-	_logic->moveCameraWithStrafe(-_movementSpeed);
+	_logic->strafe(-_movementSpeed);
     }
     
     if (keyIsDown('d'))
     {
-	_logic->moveCameraWithStrafe(_movementSpeed);
+	_logic->strafe(_movementSpeed);
     }
 
     if (keyIsDown(' '))
     {
-	_logic->getPlayer()->jump();
+	if(_logic->getPlayer()->isWalking())
+	    _logic->getPlayer()->jump();
+    }
+
+    if (keyIsDown('f'))
+    {
+	_logic->setFreeCam(true);
+    }
+
+    if (keyIsDown('g'))
+    {
+	_logic->setFreeCam(false);
     }
 }
 

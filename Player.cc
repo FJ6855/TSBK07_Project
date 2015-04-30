@@ -4,7 +4,7 @@
 Player::Player()
 {
     _position = { 20.0f, 20.0f, 20.0f };
-    _nextPosition = _position;
+    _yVel = 0;
 }
 
 vec3 Player::getPosition()
@@ -17,16 +17,6 @@ void Player::setPosition(vec3 position)
     _position = position;
 }
 
-vec3 Player::getNextPosition()
-{
-    return _nextPosition;
-}
-
-void Player::setNextPosition(vec3 position)
-{
-    _nextPosition = position;
-}
-
 vec3 Player::getDirection()
 {
     return _direction;
@@ -37,17 +27,27 @@ void Player::setDirection(vec3 direction)
     _direction = direction;
 }
 
-bool Player::getMoving()
+bool Player::isWalking()
 {
-    return _moving;
+    return _walking;
 }
 
-void Player::setMoving(bool moving)
+void Player::setWalking(bool walking)
 {
-    _moving = moving;
+    _walking = walking;
 }
 
 void Player::jump()
 {
-    _nextPosition.y += 0.8f;
+    _yVel += 0.3;
+}
+
+void Player::setYVel(float velocity)
+{
+    _yVel = velocity;
+}
+
+float Player::getYVel()
+{
+    return _yVel;
 }
