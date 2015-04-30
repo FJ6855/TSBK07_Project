@@ -2,15 +2,15 @@
 
 Logic::Logic()
 {    
-    _freeCam = false;
+    _freeCam = true;
 
     _player = new Player();
-    _cameraLookAt.z = _cameraPos.z - 1;
-    _cameraLookAt.x = _cameraPos.x;
-    _cameraLookAt.y = _cameraPos.y;
-    _cameraUp = { 0.0f, 1.0f, 0.0f };
-    _cameraPos = _player->getPosition();
+    _cameraPos = { -10.0f, 30.0f, -20.0f };
     _cameraPos.y += 1.5;
+    _cameraLookAt.z = _cameraPos.z + 1;
+    _cameraLookAt.x = _cameraPos.x + 1;
+    _cameraLookAt.y = _cameraPos.y - 0.5;
+    _cameraUp = { 0.0f, 1.0f, 0.0f };
 }
 
 Logic::~Logic()
@@ -24,6 +24,7 @@ Logic::~Logic()
 
 void Logic::update()
 {
+    _world->update();
     _physics();
 }
 
@@ -151,6 +152,12 @@ void Logic::rotateCamera(float angleZ, float angleY)
     viewVector = Normalize(VectorSub(_cameraLookAt, _cameraPos));
 
     _cameraLookAt = VectorAdd(_cameraPos, MultVec3(ArbRotate(orthoViewVector, angleZ), viewVector));
+}
+
+void Logic::removeBlock()
+{
+    
+
 }
 
 vec3 Logic::_collision(vec3 oldPos, vec3 newPos)

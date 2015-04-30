@@ -18,16 +18,15 @@ World::~World()
 
 Chunk* World::getChunkAtPosition(vec3 position)
 {    
-    if (position.x < 0 || position.z < 0 || position.y < 0 || position.x > WORLD_WIDTH * CHUNK_WIDTH || position.z > WORLD_DEPTH * CHUNK_DEPTH || position.y > WORLD_HEIGHT * CHUNK_HEIGHT)
+    if (position.x < 0 || position.z < 0 || position.y < 0 || 
+	position.x > WORLD_WIDTH * CHUNK_WIDTH || position.z > WORLD_DEPTH * CHUNK_DEPTH || 
+	position.y > WORLD_HEIGHT * CHUNK_HEIGHT)
 	return NULL;
 
     int x = ((int)floor(position.x) - (int)floor(position.x) % CHUNK_WIDTH) / CHUNK_WIDTH;
     int z = ((int)floor(position.z) - (int)floor(position.z) % CHUNK_DEPTH) / CHUNK_DEPTH;
-    //int y = ((int)floor(position.y) - (int)floor(position.y) % CHUNK_HEIGHT) / CHUNK_HEIGHT;
 
-    int index = x + z * WORLD_DEPTH; // + y * WORLD_DEPTH * WORLD_WIDTH;
-
-    //printf("index: %d\n", index);
+    int index = x + z * WORLD_DEPTH;
 
     return chunks.at(index);
 }
@@ -46,7 +45,28 @@ void World::_generateWorld(GLuint program)
 
 	    c->setPos(vec3(x * CHUNK_WIDTH, 0, z * CHUNK_DEPTH));
 
-	    chunks.push_back(c);	    
+	    chunks.push_back(c);
+	    _updateList.push_back(c);
 	}
     }
+}
+
+void World::update()
+{  
+    int i = 0;
+    for(i = 0; i < _updateList.size() & i < 2; i++)
+    {
+	_updateList.at(_updateList.size() - 1 - i)->generateChunk();
+    }
+
+    for(int j = 0; j < i; j++)
+	_updateList.pop_back();
+ 
+    
+}
+
+void World::removeBlock(int x, int y, int z)
+{
+
+
 }

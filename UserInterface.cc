@@ -1,4 +1,5 @@
 #include "UserInterface.h"
+#include "MicroGlut.h"
 
 UserInterface::UserInterface(Logic* logic)
 {
@@ -18,8 +19,7 @@ void UserInterface::update()
     {
 	_movementSpeed += 0.01f;
     }
-
-    if (keyIsDown('o') && _movementSpeed > 0.0f)
+    else if (keyIsDown('o') && _movementSpeed > 0.0f)
     {
 	_movementSpeed -= 0.01f;
     }	
@@ -28,8 +28,7 @@ void UserInterface::update()
     {
 	_logic->move(_movementSpeed);
     }
-
-    if (keyIsDown('s'))
+    else if (keyIsDown('s'))
     {
 	_logic->move(-_movementSpeed);
     }
@@ -38,8 +37,7 @@ void UserInterface::update()
     {
 	_logic->strafe(-_movementSpeed);
     }
-    
-    if (keyIsDown('d'))
+    else if (keyIsDown('d'))
     {
 	_logic->strafe(_movementSpeed);
     }
@@ -54,11 +52,16 @@ void UserInterface::update()
     {
 	_logic->setFreeCam(true);
     }
-
-    if (keyIsDown('g'))
+    else if (keyIsDown('g'))
     {
 	_logic->setFreeCam(false);
     }
+
+    if(glutMouseIsDown(1))
+    {
+	_logic->removeBlock();
+
+    } 
 }
 
 void UserInterface::moveMouse(int mouseX, int mouseY, int windowWidth, int windowHeight)

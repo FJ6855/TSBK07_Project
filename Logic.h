@@ -39,6 +39,8 @@ public:
 
     void setFreeCam(bool value);
 
+    void removeBlock();
+
 private:
     bool _freeCam;
    

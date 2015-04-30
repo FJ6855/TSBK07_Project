@@ -20,11 +20,14 @@ public:
     ~World();
 
     std::vector<Chunk*> chunks;
+   
 
     Chunk* getChunkAtPosition(vec3 position);
+    void removeBlock(int x, int y, int z);
+    void update();
     
 private:
-
+    std::vector<Chunk*> _updateList;
     void _generateWorld(GLuint program);
 };
 

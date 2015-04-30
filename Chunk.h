@@ -7,6 +7,53 @@
 #include "GL/gl.h"
 #include "LoadTGA.h"
 
+static float lightValue = 0.85;
+
+
+static Vertex cube[36] = {
+    //front
+    Vertex({1.0f, 1.0f, 1.0f}, {0, 0, 1}, {1, 0}, lightValue),
+    Vertex({0.0f, 1.0f, 1.0f}, {0, 0, 1}, {0, 0}, lightValue),
+    Vertex({0.0f, 0.0f, 1.0f}, {0, 0, 1}, {0, 1},lightValue),
+    Vertex({1.0f, 1.0f, 1.0f}, {0, 0, 1}, {1, 0},lightValue),
+    Vertex({0.0f, 0.0f, 1.0f}, {0, 0, 1}, {0, 1} , lightValue),
+    Vertex({1.0f, 0.0f, 1.0f}, {0, 0, 1}, {1, 1}, lightValue),
+    //back
+    Vertex({0.0f, 1.0f, 0.0f}, {0, 0, -1}, {1, 0}, lightValue ),
+    Vertex({1.0f, 1.0f, 0.0f,}, {0, 0, -1}, {0, 0}, lightValue),
+    Vertex({1.0f, 0.0f, 0.0f}, {0, 0, -1}, {0, 1}, lightValue),
+    Vertex({0.0f, 1.0f, 0.0f}, {0, 0, -1}, {1, 0}, lightValue),
+    Vertex({1.0f, 0.0f, 0.0f}, {0, 0, -1}, {0, 1}, lightValue),
+    Vertex({0.0f, 0.0f, 0.0f}, {0, 0, -1}, {1, 1}, lightValue),
+    //down
+    Vertex({1.0f, 0.0f, 1.0f}, {0, -1, 0}, {1, 0}, lightValue),
+    Vertex({0.0f, 0.0f, 1.0f,}, {0, -1, 0}, {0, 0}, lightValue),
+    Vertex({0.0f, 0.0f, 0.0f}, {0, -1, 0}, {0, 1}, lightValue),
+    Vertex({1.0f, 0.0f, 1.0f}, {0, -1, 0}, {1, 0}, lightValue),
+    Vertex({0.0f, 0.0f, 0.0f}, {0, -1, 0}, {0, 1}, lightValue),
+    Vertex({1.0f, 0.0f, 0.0f}, {0, -1, 0}, {1, 1}, lightValue),
+    //up
+    Vertex({1.0f, 1.0f, 0.0f}, {0, 1, 0}, {1, 0}, lightValue),
+    Vertex({0.0f, 1.0f, 0.0f,}, {0, 1, 0}, {0, 0}, lightValue),
+    Vertex({0.0f, 1.0f, 1.0f}, {0, 1, 0}, {0, 1}, lightValue),
+    Vertex({1.0f, 1.0f, 0.0f}, {0, 1, 0}, {1, 0}, lightValue),
+    Vertex({0.0f, 1.0f, 1.0f}, {0, 1, 0}, {0, 1}, lightValue),
+    Vertex({1.0f, 1.0f, 1.0f}, {0, 1, 0}, {1, 1}, lightValue),
+    //left
+    Vertex({0.0f, 1.0f, 1.0f}, {-1, 0, 0}, {1, 0}, lightValue),
+    Vertex({0.0f, 1.0f, 0.0f,}, {-1, 0, 0}, {0, 0}, lightValue),
+    Vertex({0.0f, 0.0f, 0.0f}, {-1, 0, 0}, {0, 1}, lightValue),
+    Vertex({0.0f, 1.0f, 1.0f}, {-1, 0, 0}, {1, 0}, lightValue),
+    Vertex({0.0f, 0.0f, 0.0f}, {-1, 0, 0}, {0, 1}, lightValue),
+    Vertex({0.0f, 0.0f, 1.0f}, {-1, 0, 0}, {1, 1}, lightValue),
+    //right
+    Vertex({1.0f, 1.0f, 0.0f}, {1, 0, 0}, {1, 0}, lightValue),
+    Vertex({1.0f, 1.0f, 1.0f,}, {1, 0, 0}, {0, 0}, lightValue),
+    Vertex({1.0f, 0.0f, 1.0f}, {1, 0, 0}, {0, 1}, lightValue),
+    Vertex({1.0f, 1.0f, 0.0f}, {1, 0, 0}, {1, 0}, lightValue),
+    Vertex({1.0f, 0.0f, 1.0f}, {1, 0, 0}, {0, 1}, lightValue),
+    Vertex({1.0f, 0.0f, 0.0f}, {1, 0, 0}, {1, 1}, lightValue)};
+
 class Chunk
 {
 public:
@@ -18,6 +65,7 @@ public:
     int getNumVertices();
     void setPos(vec3 pos);
     vec3 getPos();
+    void generateChunk();
 
     bool isBlockActive(int index);
 
@@ -33,16 +81,12 @@ private:
     
     int _numVertices;
 
-    Vertex _cube[36];
     std::vector<bool> _activeBlocks;
-    //std::vector<Block*> _blocks;
 
     GLuint _vao;
     GLuint _vbo;
 
     GLuint _program;
-
-    void _generateChunk();
 
     void _setFull();
     void _setEmpty();
