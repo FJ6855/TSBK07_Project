@@ -20,6 +20,5 @@ void main(void)
 
 	Light = ambientLight + (sunLightIntensity * sunLightDiffuse);
 	Light = Light * fragLightValue;
-	outColor = vec4(texture(tex, fragTexCoord)) * vec4(Light,1.0);	
-	//outColor = vec4(Light, 1.0);
+	outColor = vec4(texture(tex, fragTexCoord)) * vec4(Light,1.0);
 }	
