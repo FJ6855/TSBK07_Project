@@ -1,7 +1,11 @@
 #include "World.h"
 
+#include <fstream>
+
 World::World(GLuint program)
 {
+    _nextChunkId = 0;
+
     _generateWorld(program);
 }
 
@@ -38,15 +42,25 @@ void World::_generateWorld(GLuint program)
 
     LoadTGATextureData("fft-terrain2.tga", &_heightmap);
 
+    // clear content of chunks.txt
+    std::ofstream file;
+    file.open("chunks.txt", std::ofstream::out | std::ofstream::trunc);
+    file.close();
+
     for(int z = 0; z < WORLD_DEPTH; z++)
     {
 	for(int x = 0; x < WORLD_WIDTH; x++)
 	{
-	    Chunk* c = new Chunk(program, &_heightmap, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_DEPTH, x * CHUNK_WIDTH, z * CHUNK_DEPTH);
+	    Chunk* c = new Chunk(_nextChunkId, program, &_heightmap, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_DEPTH, x * CHUNK_WIDTH, z * CHUNK_DEPTH);
 
 	    c->setPos(vec3(x * CHUNK_WIDTH, 0, z * CHUNK_DEPTH));
+	    
+	    if (x == 0 && z == 0)
+		chunks.push_back(c);	    
 
-	    chunks.push_back(c);	    
+	    _nextChunkId++;
+
+	    c->saveChunk();
 	}
     }
 }

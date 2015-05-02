@@ -10,7 +10,7 @@
 class Chunk
 {
 public:
-    Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ);
+    Chunk(int chunkId, GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ);
     
     ~Chunk();
 
@@ -21,7 +21,12 @@ public:
 
     bool isBlockActive(int index);
 
+    void saveChunk();
+    void loadChunk();
+
 private: 
+    int _chunkId;
+
     int _chunkWidth;
     int _chunkHeight;
     int _chunkDepth;

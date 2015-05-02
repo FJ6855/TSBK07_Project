@@ -1,9 +1,12 @@
 #include "Chunk.h"
 #include <stdio.h>
+#include <fstream>
 #include <iostream>
 
-Chunk::Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ)
+Chunk::Chunk(int chunkId, GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ)
 {   
+    _chunkId = chunkId;
+
     _program = program;
 
     _chunkWidth = chunkWidth;
@@ -342,4 +345,58 @@ vec3 Chunk::getPos()
 bool Chunk::isBlockActive(int index)
 {
     return _activeBlocks.at(index);
+}
+
+void Chunk::saveChunk()
+{
+    std::ofstream file;
+
+    file.open("chunks.txt", std::ios::app);
+
+    if (file.is_open())
+    {	
+	if (_chunkId < 10)
+	    file << "   ";
+	else if (_chunkId < 100)
+	    file << "  ";
+	else if (_chunkId < 1000)
+	    file << " ";
+
+	file << _chunkId;
+
+	file << ":";
+	
+	for (int i = 0; i < _activeBlocks.size(); i++)
+	{
+	    file << (int)_activeBlocks.at(i);
+	}
+	
+	file.close();
+    }
+}
+
+void Chunk::loadChunk()
+{
+    std::ifstream file;
+
+    file.open("chunks.txt");
+
+    if (file.is_open())
+    {	
+	file.seekg(_chunkId * _chunkWidth * _chunkHeight * _chunkDepth + 5 * _chunkId + 5, std::ios_base::beg);  
+
+	char bit;
+       
+	for (int i = 0; i < _activeBlocks.size(); i++)
+	{
+	    file.get(bit);
+
+	    if (bit == '1')
+		_activeBlocks.at(i) = true;
+	    else
+		_activeBlocks.at(i) = false;    
+	}
+
+	file.close();
+    }
 }

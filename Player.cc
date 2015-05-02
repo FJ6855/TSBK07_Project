@@ -3,7 +3,7 @@
 
 Player::Player()
 {
-    _position = { 20.0f, 20.0f, 20.0f };
+    _position = { 1.0f, 20.0f, 1.0f };
     _nextPosition = _position;
 }
 

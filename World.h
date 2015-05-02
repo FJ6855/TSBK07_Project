@@ -24,6 +24,7 @@ public:
     Chunk* getChunkAtPosition(vec3 position);
     
 private:
+    int _nextChunkId;
 
     void _generateWorld(GLuint program);
 };
