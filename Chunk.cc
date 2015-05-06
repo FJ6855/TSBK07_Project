@@ -19,6 +19,23 @@ Chunk::Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHe
     glGenVertexArrays(1, &_vao);
 }
 
+Chunk::Chunk(GLuint program, int chunkWidth, int chunkHeight, int chunkDepth)
+{   
+    _program = program;
+
+    _chunkWidth = chunkWidth;
+    _chunkHeight = chunkHeight;
+    _chunkDepth = chunkDepth;
+
+    _activeBlocks.resize(chunkWidth * chunkHeight * chunkDepth);
+    
+    _setFull();
+    
+    _numVertices = 0;
+    
+    glGenVertexArrays(1, &_vao);
+}
+
 Chunk::~Chunk()
 {
 

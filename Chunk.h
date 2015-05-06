@@ -58,6 +58,8 @@ class Chunk
 {
 public:
     Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ);
+
+    Chunk(GLuint program, int chunkWidth, int chunkHeight, int chunkDepth);
     
     ~Chunk();
 

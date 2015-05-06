@@ -40,8 +40,10 @@ public:
     void setFreeCam(bool value);
 
     void removeBlock();
-
+    
+  
 private:
+
     bool _freeCam;
    
     vec3 _cameraPos;

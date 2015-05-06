@@ -33,6 +33,7 @@ Chunk* World::getChunkAtPosition(vec3 position)
 
 void World::_generateWorld(GLuint program)
 {
+    
     TextureData _heightmap;
 
     LoadTGATextureData("fft-terrain2.tga", &_heightmap);

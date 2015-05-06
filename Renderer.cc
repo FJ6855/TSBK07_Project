@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include <stdio.h>
+#include <algorithm>
 
 Renderer::Renderer(Logic* logic)
 {
@@ -101,6 +102,7 @@ void Renderer::render()
 
     DrawModel(_skyboxModel, _skyboxShader, "in_Position", NULL, "in_Tex_Coord");
 
+    //World
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_CULL_FACE);
@@ -113,24 +115,33 @@ void Renderer::render()
 
     glUniformMatrix4fv(glGetUniformLocation(_shader, "viewMatrix"), 1, GL_TRUE, _viewMatrix.m);
     
-    /*_modelMatrix = T(_logic->getPlayer()->getPosition().x, _logic->getPlayer()->getPosition().y, _logic->getPlayer()->getPosition().z);
+    vec3 playerPos =_logic->getPlayer()->getPosition();
+    int playerX = playerPos.x / 16;
+    int playerZ = playerPos.z / 16;
 
-    glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
+    vec3 PointLightColor = vec3(1.0, 0.0, 0.0);
+    vec3 PointLightPos = _logic->getPlayer()->getPosition();
+    PointLightPos.y += 1.5;
 
-    DrawModel(_cube, _shader, "inPosition", "inNormal", NULL);*/
-    
-    for (int i = 0; i < _logic->getWorld()->chunks.size(); i++)
-    {
-	Chunk* chunk = _logic->getWorld()->chunks.at(i);
+    glUniform3fv(glGetUniformLocation(_shader, "PointLightPos"), 1, &PointLightPos.x);
+    glUniform3fv(glGetUniformLocation(_shader, "PointLightColor"), 1, &PointLightColor.x);
 
-	_modelMatrix = T(chunk->getPos().x, chunk->getPos().y, chunk->getPos().z);
-	
-	glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
 
-	glBindVertexArray(chunk->getVao());
-	
-	glDrawArrays(GL_TRIANGLES, 0, chunk->getNumVertices());
-    }
+    for (int z = std::max(0, playerZ - 8); z < std::min(playerZ + 8, 16); z++)
+	for (int x = std::max(0, playerX - 8); x < std::min(playerX + 8, 16); x++)
+	{
+	    
+	    Chunk* chunk = _logic->getWorld()->chunks.at(x + z * 16);
+
+	    _modelMatrix = T(chunk->getPos().x, chunk->getPos().y, chunk->getPos().z);
+	    
+	    glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
+	  
+
+	    glBindVertexArray(chunk->getVao());
+	    
+	    glDrawArrays(GL_TRIANGLES, 0, chunk->getNumVertices());
+	}
 
     glutSwapBuffers();
 }
