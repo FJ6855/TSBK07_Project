@@ -39,6 +39,7 @@ Chunk* World::getChunkAtPosition(vec3 position)
 
 void World::_generateWorld(GLuint program)
 {
+    
     TextureData _heightmap;
 
     srand(time(NULL));
