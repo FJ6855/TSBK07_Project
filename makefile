@@ -1,8 +1,8 @@
 CCC = g++ -std=c++98 -lGL -lm -DGL_GLEXT_PROTOTYPES
 CCC2 = gcc -std=c99 -lGL -lm -DGL_GLEXT_PROTOTYPES
 
-game : main.o Logic.o World.o Chunk.o Player.o Vertex.o Renderer.o UserInterface.o GL_utilities.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o
-	$(CCC) -o game main.o Logic.o World.o Chunk.o Player.o Vertex.o Renderer.o UserInterface.o GL_utilities.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o
+game : main.o Logic.o World.o Chunk.o Player.o Vertex.o Renderer.o UserInterface.o GL_utilities.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o simplexnoise.o
+	$(CCC) -o game main.o Logic.o World.o Chunk.o Player.o Vertex.o Renderer.o UserInterface.o GL_utilities.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o simplexnoise.o
 
 main.o : main.cc
 	$(CCC) -c main.cc
@@ -43,5 +43,8 @@ LoadTGA.o : LoadTGA.c LoadTGA.h
 MathUtils.o : MathUtils.cc MathUtils.h
 	$(CCC) -c MathUtils.cc
 
+simplexnoise.o : simplexnoise.cc simplexnoise.h
+	$(CCC) -c simplexnoise.cc
+
 clean :
-	rm main.o Logic.o World.o Chunk.o Player.o Vertex.o Renderer.o UserInterface.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o
+	rm main.o Logic.o World.o Chunk.o Player.o Vertex.o Renderer.o UserInterface.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o simplexnoise.o

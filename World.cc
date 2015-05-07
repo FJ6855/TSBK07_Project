@@ -1,4 +1,10 @@
 #include "World.h"
+#include "simplexnoise.h"
+
+#include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
 
 World::World(GLuint program)
 {
@@ -35,8 +41,25 @@ void World::_generateWorld(GLuint program)
 {
     TextureData _heightmap;
 
-    LoadTGATextureData("fft-terrain2.tga", &_heightmap);
+    srand(time(NULL));
 
+    LoadTGATextureData("test.tga", &_heightmap);
+    float x1 = rand() % 5 + 1;
+    float x2 = rand() % 5 + 1;
+    float z1 = rand() % 4 + 1 ;
+
+    x1 /= 10;
+    x2 /= 10;
+    z1 /= 100;
+
+    for(int x = 0; x <_heightmap.width; x++)
+      { 		
+	for(int z = 0; z < _heightmap.height; z++)
+	  {    
+	    _heightmap.imageData[(x + z * _heightmap.width) * (_heightmap.bpp / 8)] = scaled_octave_noise_2d(x1, x2, z1, 0.0, 15.0, x, z);
+	  }
+      }
+    
     for(int z = 0; z < WORLD_DEPTH; z++)
     {
 	for(int x = 0; x < WORLD_WIDTH; x++)
@@ -61,8 +84,7 @@ void World::update()
 
     for(int j = 0; j < i; j++)
 	_updateList.pop_back();
- 
-    
+
 }
 
 void World::removeBlock(int x, int y, int z)
