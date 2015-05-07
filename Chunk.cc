@@ -60,7 +60,7 @@ void Chunk::_setHeightmap(TextureData* heightmap, int heightmapX, int heightmapZ
 	    {	
 		int index = (z - heightmapZ) + (x - heightmapX) * _chunkDepth + y * _chunkDepth * _chunkWidth;
 				
-		if (y <= heightmap->imageData[(x + z * heightmap->width) * (heightmap->bpp / 8)]) // 20.0f)
+		if (y <= heightmap->imageData[(x + z * heightmap->width) * (heightmap->bpp / 8)])
 		{
 		    _activeBlocks.at(index) = true;
 		}		 
