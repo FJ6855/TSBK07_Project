@@ -1,4 +1,5 @@
 #include "GL_utilities.h"
+#include <vector>
 #include "Renderer.h"
 #include "Logic.h"
 #include "UserInterface.h"
@@ -15,6 +16,7 @@ void run();
 void init(int argc, char* argv[]);
 void displayTimer(int);
 void mouseMovement(int x, int y);
+
 
 int main(int argc, char* argv[])
 {
@@ -43,7 +45,7 @@ void init(int argc, char* argv[])
   userInterface = new UserInterface(logic);
 
   initKeymapManager();
-  glutTimerFunc(20, &displayTimer, 0);
+  glutTimerFunc(1, &displayTimer, 0);
 
   glutPassiveMotionFunc(mouseMovement);
  
@@ -53,8 +55,11 @@ void init(int argc, char* argv[])
 void displayTimer(int value)
 {
   glutPostRedisplay();
-  glutTimerFunc(20, &displayTimer, value);
+  glutTimerFunc(1, &displayTimer, value);
 }
+
+int frame=0,time,timebase=0;
+float fps=0.0f;
 
 void run()
 {
@@ -67,6 +72,18 @@ void run()
     
     //render
     renderer->render();
+
+    frame++;
+    time = glutGet(GLUT_ELAPSED_TIME);
+
+    if (time - timebase > 1000) 
+    {
+	fps = frame * 1000.0 / (time - timebase);
+	timebase = time;
+	frame = 0;
+    }
+
+    //printf("fps: %f\n", fps);
 }
 
 void mouseMovement(int x, int y)

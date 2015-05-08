@@ -47,6 +47,10 @@ void glutReshapeWindow(int width, int height);
 void glutSetWindowTitle(char *title);
 void glutInitContextVersion(int major, int minor);
 
+    char glutMouseIsDown(unsigned char c);
+
+
+
 /* Mouse buttons. */
 #define GLUT_LEFT_BUTTON		0
 // No support for middle yet

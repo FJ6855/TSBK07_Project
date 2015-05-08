@@ -498,3 +498,8 @@ char glutKeyIsDown(unsigned char c)
 	return gKeymap[(unsigned int)c];
 }
 
+char glutMouseIsDown(unsigned char c)
+{
+	return gButtonPressed[(unsigned int)c];
+}
+
