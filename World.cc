@@ -16,13 +16,15 @@ World::World(GLuint program, vec3 playerPosition)
     int z = ((int)floor(playerPosition.z) - (int)floor(playerPosition.z) % CHUNK_DEPTH);
 
     loadPosition = vec3(x - floor(LOAD_WIDTH / 2) * CHUNK_WIDTH, 0, z - floor(LOAD_DEPTH / 2) * CHUNK_DEPTH);
-
+    printf("load pos %f\n", loadPosition.z);
     chunks = new HashTable(LOAD_WIDTH * LOAD_DEPTH);
 
     _nextChunkId = 0;
 
     _program = program;
-    
+
+    srand(time(NULL));
+
     _generateWorld(program);
 }
 
@@ -142,71 +144,69 @@ void World::loadChunks(vec3 playerPosition)
     _lastPlayerPosition = playerPosition;
 }
 
-void World::updateChunks(vec3 cameraPosition, vec3 cameraLookAt, vec3 cameraUp, float near, float far, float right)
+void World::updateChunks(vec3 cameraPosition, vec3 cameraLookAt, vec3 cameraUp, float near, float far, float right, float fov, float aspectRatio)
 {
+    // Get the direction we are looking
     vec3 viewVector = Normalize(cameraLookAt - cameraPosition);
-   
+    
+    // Get the position of the near plane
     vec3 nearPosition = cameraPosition + viewVector * near;
-
+    
+    // Get the position of the far plane
+    vec3 farPosition = cameraPosition + viewVector * far;
+    
+    // Get the vector that is orthogonal to the view vector and the up vector
     vec3 rightVector = CrossProduct(viewVector, cameraUp);
 
-    vec3 farPosition = cameraPosition + viewVector * far;
+    // Calculate the near and far planes width and height
+    float nearHeight = 2 * tan(fov / 2) * near;
+    float nearWidth = nearHeight * aspectRatio;
 
-    vec3 topLeftCorner = farPosition - rightVector * right / 2;
-    vec3 topRightCorner = farPosition + rightVector * right / 2;
-    vec3 bottomLeftCorner = nearPosition - rightVector * right / 2;
-    vec3 bottomRightCorner = nearPosition + rightVector * right / 2;
+    float farHeight = 2 * tan(fov / 2) * far;
+    float farWidth = farHeight * aspectRatio;
 
-    topLeftCorner.x = (int)floor(topLeftCorner.x) - (int)floor(topLeftCorner.x) % CHUNK_WIDTH;
-    topRightCorner.x = (int)floor(topRightCorner.x) - (int)floor(topRightCorner.x) % CHUNK_WIDTH;
-    bottomLeftCorner.x = (int)floor(bottomLeftCorner.x) - (int)floor(bottomLeftCorner.x) % CHUNK_WIDTH;
-    bottomRightCorner.x = (int)floor(bottomRightCorner.x) - (int)floor(bottomRightCorner.x) % CHUNK_WIDTH;
+    // Get the positions of the far and near planes edges
+    vec3 farLeftEdge = farPosition - rightVector * (farWidth / 2);
+    vec3 farRightEdge = farPosition + rightVector * (farWidth / 2);
 
-    topLeftCorner.z = (int)floor(topLeftCorner.z) - (int)floor(topLeftCorner.z) % CHUNK_DEPTH;
-    topRightCorner.z = (int)floor(topRightCorner.z) - (int)floor(topRightCorner.z) % CHUNK_DEPTH;
-    bottomLeftCorner.z = (int)floor(bottomLeftCorner.z) - (int)floor(bottomLeftCorner.z) % CHUNK_DEPTH;
-    bottomRightCorner.z = (int)floor(bottomRightCorner.z) - (int)floor(bottomRightCorner.z) % CHUNK_DEPTH;
+    vec3 nearLeftEdge = nearPosition - rightVector * (nearWidth / 2);
+    vec3 nearRightEdge = nearPosition + rightVector * (nearWidth / 2);
 
-    topLeftCorner.y = 0.0f;
-    topRightCorner.y = 0.0f;
-    bottomLeftCorner.y = 0.0f;
-    bottomRightCorner.y = 0.0f;
+    // Round of the positions into chunk coordinates 
+    farLeftEdge.x = (int)floor(farLeftEdge.x) - (int)floor(farLeftEdge.x) % CHUNK_WIDTH;
+    farRightEdge.x = (int)floor(farRightEdge.x) - (int)floor(farRightEdge.x) % CHUNK_WIDTH;
+   
+    farLeftEdge.z = (int)floor(farLeftEdge.z) - (int)floor(farLeftEdge.z) % CHUNK_DEPTH;
+    farRightEdge.z = (int)floor(farRightEdge.z) - (int)floor(farRightEdge.z) % CHUNK_DEPTH;
 
-    printf("right vector: %f, %f, %f\n", rightVector.x, rightVector.y, rightVector.z);
-    printf("top left: %f, %f, %f\n", topLeftCorner.x, topLeftCorner.y, topLeftCorner.z);
-    printf("top right: %f, %f, %f\n", topRightCorner.x, topRightCorner.y, topRightCorner.z);
-    printf("bottom left: %f, %f, %f\n", bottomLeftCorner.x, bottomLeftCorner.y, bottomLeftCorner.z);
-    printf("bottom right: %f, %f, %f\n", bottomRightCorner.x, bottomRightCorner.y, bottomRightCorner.z);
+    nearLeftEdge.x = (int)floor(nearLeftEdge.x) - (int)floor(nearLeftEdge.x) % CHUNK_WIDTH;
+    nearRightEdge.x = (int)floor(nearRightEdge.x) - (int)floor(nearRightEdge.x) % CHUNK_WIDTH;
 
-    Chunk* topLeftChunk = chunks->getChunk(topLeftCorner);
-    Chunk* topRightChunk = chunks->getChunk(topRightCorner);
-    Chunk* bottomLeftChunk = chunks->getChunk(bottomLeftCorner);
-    Chunk* bottomRightChunk = chunks->getChunk(bottomRightCorner);
-    
-    int topMinX = (topLeftChunk->getPos().x < topRightChunk->getPos().x) ? topLeftChunk->getPos().x : topRightChunk->getPos().x; 
-    int bottomMinX = (bottomLeftChunk->getPos().x < bottomRightChunk->getPos().x) ? bottomLeftChunk->getPos().x : bottomRightChunk->getPos().x;
+    nearLeftEdge.z = (int)floor(nearLeftEdge.z) - (int)floor(nearLeftEdge.z) % CHUNK_DEPTH;
+    nearRightEdge.z = (int)floor(nearRightEdge.z) - (int)floor(nearRightEdge.z) % CHUNK_DEPTH;
+
+    // Calculate which are the min and max in x and z of the positions
+    // the result will be the area we loop through and render the chunks falling inside these coordinates
+    int topMinX = (farLeftEdge.x < farRightEdge.x) ? farLeftEdge.x : farRightEdge.x; 
+    int bottomMinX = (nearLeftEdge.x < nearRightEdge.x) ? nearLeftEdge.x : nearRightEdge.x;
     minX = (topMinX < bottomMinX) ? topMinX : bottomMinX;
     
-    int topMinZ = (topLeftChunk->getPos().z < topRightChunk->getPos().z) ? topLeftChunk->getPos().z : topRightChunk->getPos().z; 
-    int bottomMinZ = (bottomLeftChunk->getPos().z < bottomRightChunk->getPos().z) ? bottomLeftChunk->getPos().z : bottomRightChunk->getPos().z;
+    int topMinZ = (farLeftEdge.z < farRightEdge.z) ? farLeftEdge.z : farRightEdge.z; 
+    int bottomMinZ = (nearLeftEdge.z < nearRightEdge.z) ? nearLeftEdge.z : nearRightEdge.z;
     minZ = (topMinZ < bottomMinZ) ? topMinZ : bottomMinZ;
 
-    int topMaxX = (topLeftChunk->getPos().x < topRightChunk->getPos().x) ? topRightChunk->getPos().x : topLeftChunk->getPos().x; 
-    int bottomMaxX = (bottomLeftChunk->getPos().x < bottomRightChunk->getPos().x) ? bottomRightChunk->getPos().x : bottomLeftChunk->getPos().x;
+    int topMaxX = (farLeftEdge.x < farRightEdge.x) ? farRightEdge.x : farLeftEdge.x; 
+    int bottomMaxX = (nearLeftEdge.x < nearRightEdge.x) ? nearRightEdge.x : nearLeftEdge.x;
     maxX = (topMaxX < bottomMaxX) ? bottomMaxX : topMaxX;
 
-    int topMaxZ = (topLeftChunk->getPos().z < topRightChunk->getPos().z) ? topRightChunk->getPos().z : topLeftChunk->getPos().z; 
-    int bottomMaxZ = (bottomLeftChunk->getPos().z < bottomRightChunk->getPos().z) ? bottomRightChunk->getPos().z : bottomLeftChunk->getPos().z;
+    int topMaxZ = (farLeftEdge.z < farRightEdge.z) ? farRightEdge.z : farLeftEdge.z; 
+    int bottomMaxZ = (nearLeftEdge.z < nearRightEdge.z) ? nearRightEdge.z : nearLeftEdge.z;
     maxZ = (topMaxZ < bottomMaxZ) ? bottomMaxZ : topMaxZ;
 }
 
 void World::_generateWorld(GLuint program)
 {
-    TextureData _heightmap;
-
-    srand(time(NULL));
-
-    LoadTGATextureData("test.tga", &_heightmap);
+    LoadTGATextureData("test2.tga", &_heightmap);
     
     float x1 = rand() % 5 + 1;
     float x2 = rand() % 5 + 1;
@@ -214,7 +214,7 @@ void World::_generateWorld(GLuint program)
 
     x1 /= 10;
     x2 /= 10;
-    z1 /= 100;
+    z1 = 0.05;
 
     for(int x = 0; x <_heightmap.width; x++)
     {

@@ -22,6 +22,10 @@ int main(int argc, char* argv[])
 {
     init(argc, argv);
 
+    while(true)
+    {
+	run();
+    }
     return 0;
 }
 
@@ -58,7 +62,7 @@ void displayTimer(int value)
   glutTimerFunc(1, &displayTimer, value);
 }
 
-int frame=0,time,timebase=0;
+int frame=0,time2,timebase=0;
 float fps=0.0f;
 
 void run()
@@ -74,16 +78,16 @@ void run()
     renderer->render();
 
     frame++;
-    time = glutGet(GLUT_ELAPSED_TIME);
+    time2 = glutGet(GLUT_ELAPSED_TIME);
 
-    if (time - timebase > 1000) 
+    if (time2 - timebase > 1000) 
     {
-	fps = frame * 1000.0 / (time - timebase);
-	timebase = time;
+	fps = frame * 1000.0 / (time2 - timebase);
+	timebase = time2;
 	frame = 0;
     }
 
-    //printf("fps: %f\n", fps);
+    printf("fps: %f\n", fps);
 }
 
 void mouseMovement(int x, int y)

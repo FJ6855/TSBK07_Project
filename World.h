@@ -13,8 +13,8 @@
 #define CHUNK_HEIGHT 16
 #define CHUNK_DEPTH 16
 
-#define LOAD_WIDTH 3
-#define LOAD_DEPTH 3
+#define LOAD_WIDTH 19
+#define LOAD_DEPTH 19
 
 struct Buffer
 {
@@ -36,8 +36,8 @@ public:
     void removeBlock(int x, int y, int z);
     void update();
     void loadChunks(vec3 playerPosition);
-    void updateChunks(vec3 cameraPosition, vec3 cameraLookat, vec3 cameraUp, float near, float far, float right);
-    
+    void updateChunks(vec3 cameraPosition, vec3 cameraLookat, vec3 cameraUp, float near, float far, float right, float fov, float aspectRatio);
+
     vec3 loadPosition;
 
     int minX;

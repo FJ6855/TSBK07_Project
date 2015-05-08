@@ -40,7 +40,7 @@ void Logic::update()
 
     _world->loadChunks(_player->getPosition());
 
-    //_world->updateChunks(_cameraPos, _cameraLookAt, _cameraUp, near, far, right);
+    _world->updateChunks(_cameraPos, _cameraLookAt, _cameraUp, near, far, right, fovDegree, aspectRatio);
 }
 
 void Logic::createWorld(GLuint program)

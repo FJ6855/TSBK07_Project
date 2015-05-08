@@ -1,5 +1,5 @@
-CCC = g++ -std=c++98 -lGL -lm -DGL_GLEXT_PROTOTYPES
-CCC2 = gcc -std=c99 -lGL -lm -DGL_GLEXT_PROTOTYPES
+CCC = g++ -std=c++98 -W -Wall -lGL -lm -DGL_GLEXT_PROTOTYPES
+CCC2 = gcc -std=c99 -W -Wall -lGL -lm -DGL_GLEXT_PROTOTYPES
 
 game : main.o Logic.o World.o Chunk.o Player.o Vertex.o Renderer.o UserInterface.o GL_utilities.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o HashTable.o simplexnoise.o
 	$(CCC) -o game main.o Logic.o World.o Chunk.o Player.o Vertex.o Renderer.o UserInterface.o GL_utilities.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o HashTable.o simplexnoise.o

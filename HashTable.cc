@@ -38,12 +38,9 @@ Node* HashTable::get(const vec3& key)
     
     Node* node = _table.at(hash);
     
-    if (node != NULL)
-    {
-	while (node->next != NULL && (node->key.x != key.x || node->key.z != key.z))
-	    node = node->next;
-    }
-
+    while (node != NULL && (node->key.x != key.x || node->key.z != key.z))
+	node = node->next;
+    
     return node;
 }
 
