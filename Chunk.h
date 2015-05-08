@@ -57,9 +57,9 @@ static Vertex cube[36] = {
 class Chunk
 {
 public:
-    Chunk(int chunkId, GLuint program, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ);
-    
     Chunk(int chunkId, GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ);
+
+    Chunk(int chunkId, GLuint program, int chunkWidth, int chunkHeight, int chunkDepth);
     
     ~Chunk();
 
@@ -73,12 +73,12 @@ public:
 
     void saveChunk();
     void loadChunk();
+
+private: 
     int _chunkId;
 
     GLuint _vbo;
-
     GLuint _vao;
-private: 
 
     int _chunkWidth;
     int _chunkHeight;

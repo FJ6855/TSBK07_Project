@@ -1,7 +1,10 @@
 #include "World.h"
+#include "simplexnoise.h"
 
-#include <fstream>
-#include <algorithm>
+#include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
 
 TextureData _heightmap;
 
@@ -63,7 +66,6 @@ void World::update()
 
 void World::removeBlock(int x, int y, int z)
 {
-
 
 }
 
@@ -200,25 +202,36 @@ void World::updateChunks(vec3 cameraPosition, vec3 cameraLookAt, vec3 cameraUp, 
 
 void World::_generateWorld(GLuint program)
 {
-    LoadTGATextureData("fft-terrain2.tga", &_heightmap);
+    TextureData _heightmap;
 
-    // Old idea, probably remove
-    // clear content of chunks.txt
-    //std::ofstream file;
-    //file.open("chunks.txt", std::ofstream::out | std::ofstream::trunc);
-    //file.close();
+    srand(time(NULL));
 
-    //printf("what: %f\n", loadPosition.z);
+    LoadTGATextureData("test.tga", &_heightmap);
+    
+    float x1 = rand() % 5 + 1;
+    float x2 = rand() % 5 + 1;
+    float z1 = rand() % 4 + 1 ;
+
+    x1 /= 10;
+    x2 /= 10;
+    z1 /= 100;
+
+    for(int x = 0; x <_heightmap.width; x++)
+    {
+	for(int z = 0; z < _heightmap.height; z++)
+	{
+	    _heightmap.imageData[(x + z * _heightmap.width) * (_heightmap.bpp / 8)] = scaled_octave_noise_2d(x1, x2, z1, 0.0, 15.0, x, z);
+	}
+    }
+
     for(int z = loadPosition.z / CHUNK_DEPTH; z < LOAD_DEPTH + loadPosition.z / CHUNK_DEPTH; z++)
     {
 	for(int x = loadPosition.x / CHUNK_WIDTH; x < LOAD_WIDTH + loadPosition.z / CHUNK_DEPTH; x++)
 	{
-	    //printf("%i, %i\n", x, z);
 	    if (x >= 0 && z >= 0)
 		_createChunk(x * CHUNK_WIDTH, z * CHUNK_DEPTH);
 	}
     }
-    printf("table size: %i\n", chunks->getTableSize());
 }
 
 int World::_getChunkIndexAtPosition(vec3 position)

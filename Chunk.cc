@@ -3,23 +3,6 @@
 #include <fstream>
 #include <iostream>
 
-Chunk::Chunk(int chunkId, GLuint program, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ)
-{   
-    _chunkId = chunkId;
-
-    _program = program;
-
-    _chunkWidth = chunkWidth;
-    _chunkHeight = chunkHeight;
-    _chunkDepth = chunkDepth;
-
-    _activeBlocks.resize(chunkWidth * chunkHeight * chunkDepth);
-    _setFull();
-    _numVertices = 0;
-
-    glGenVertexArrays(1, &_vao);
-}
-
 Chunk::Chunk(int chunkId, GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ)
 {   
     _chunkId = chunkId;
@@ -32,8 +15,27 @@ Chunk::Chunk(int chunkId, GLuint program, TextureData* heightmap, int chunkWidth
 
     _activeBlocks.resize(chunkWidth * chunkHeight * chunkDepth);
     
-    //_setHeightmap(heightmap, heightmapX, heightmapZ);
+    _setHeightmap(heightmap, heightmapX, heightmapZ);
+    //_setFull();
+    _numVertices = 0;
+    
+    glGenVertexArrays(1, &_vao);
+}
+
+Chunk::Chunk(int chunkId, GLuint program, int chunkWidth, int chunkHeight, int chunkDepth)
+{   
+    _chunkId = chunkId;
+
+    _program = program;
+
+    _chunkWidth = chunkWidth;
+    _chunkHeight = chunkHeight;
+    _chunkDepth = chunkDepth;
+
+    _activeBlocks.resize(chunkWidth * chunkHeight * chunkDepth);
+    
     _setFull();
+    
     _numVertices = 0;
     
     glGenVertexArrays(1, &_vao);
@@ -80,7 +82,7 @@ void Chunk::_setHeightmap(TextureData* heightmap, int heightmapX, int heightmapZ
 	    {	
 		int index = (z - heightmapZ) + (x - heightmapX) * _chunkDepth + y * _chunkDepth * _chunkWidth;
 				
-		if (y <= heightmap->imageData[(x + z * heightmap->width) * (heightmap->bpp / 8)] / 10.0f)
+		if (y <= heightmap->imageData[(x + z * heightmap->width) * (heightmap->bpp / 8)])
 		{
 		    _activeBlocks.at(index) = true;
 		}		 

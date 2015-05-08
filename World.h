@@ -13,8 +13,8 @@
 #define CHUNK_HEIGHT 16
 #define CHUNK_DEPTH 16
 
-#define LOAD_WIDTH 15
-#define LOAD_DEPTH 15
+#define LOAD_WIDTH 3
+#define LOAD_DEPTH 3
 
 struct Buffer
 {

@@ -1,0 +1,3 @@
+http://www.6by9.net/simplex-noise-for-c-and-python/ - simplex noise
+
+http://www.braynzarsoft.net/vision/index.php?p=VT&texture=25 - skybox
