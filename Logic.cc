@@ -2,9 +2,10 @@
 
 Logic::Logic()
 {    
-    _freeCam = true;
+    _freeCam = false;
 
     _player = new Player();
+
     _cameraPos = { -10.0f, 30.0f, -20.0f };
     _cameraPos.y += 1.5;
     _cameraLookAt.z = _cameraPos.z + 1;
@@ -29,13 +30,27 @@ Logic::~Logic()
 
 void Logic::update()
 {
-    _world->update();
+    if (_freeCam)
+    {
+	_world->update();
+    }
+    else
+    {
+	_world->update();
+    }
+
+    //printf("update physics\n");
+
     _physics();
+
+    _world->loadChunks(_player->getPosition());
+
+    _world->updateChunks(_cameraPos, _cameraLookAt, _cameraUp, near, far, right, fovDegree, aspectRatio);
 }
 
 void Logic::createWorld(GLuint program)
 {
-    _world = new World(program);
+    _world = new World(program, _player->getPosition());
 }
 
 void Logic::move(float amount)
@@ -67,12 +82,14 @@ void Logic::_physics()
     if(!_freeCam)
     {
 	float yvel = _player->getYVel();
+
 	yvel -= 0.02;
 	
 	if(yvel > -1)
 	    _player->setYVel(yvel);
 	
 	_player->setWalking(false);
+
 	movePlayerY(yvel);
     }
 
@@ -181,7 +198,7 @@ vec3 Logic::_collision(vec3 oldPos, vec3 newPos)
 	    int index = floor(relativePlayerPos.z) + floor(relativePlayerPos.x) * 
 		CHUNK_DEPTH + floor(relativePlayerPos.y) * CHUNK_DEPTH * CHUNK_WIDTH;
 	    
-	    if (index > 0 && index < CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH - 1)
+	    if (index >= 0 && index <= CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH - 1)
 	    {
 		if (c->isBlockActive(index))
 		{
@@ -215,7 +232,7 @@ vec3 Logic::_collision(vec3 oldPos, vec3 newPos)
 	    int index = floor(relativePlayerPos.z) + floor(relativePlayerPos.x + .2f * playerDirection.x) *
 		CHUNK_DEPTH + floor(relativePlayerPos.y) * CHUNK_DEPTH * CHUNK_WIDTH;
 		
-	    if (index > 0 && index < CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH - 1)
+	    if (index >= 0 && index <= CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH - 1)
 	    {
 		if (c->isBlockActive(index))
 		{	 
@@ -245,11 +262,10 @@ vec3 Logic::_collision(vec3 oldPos, vec3 newPos)
 	    int index = floor(relativePlayerPos.z + .2f * playerDirection.z) + floor(relativePlayerPos.x) * 
 		CHUNK_DEPTH + floor(relativePlayerPos.y) * CHUNK_DEPTH * CHUNK_WIDTH;
 		
-	    if (index > 0 && index < CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH - 1)
+	    if (index >= 0 && index <= CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH - 1)
 	    {
 		if (c->isBlockActive(index))
 		{
-
 		    newPos.z = floor(oldPos.z);
 
 		    if (playerDirection.z == 1.0f)

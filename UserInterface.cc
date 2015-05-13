@@ -62,6 +62,7 @@ void UserInterface::update()
     { 
 	_logic->shootBall();
     }
+
 }
 
 void UserInterface::moveMouse(int mouseX, int mouseY, int windowWidth, int windowHeight)
@@ -74,7 +75,7 @@ void UserInterface::moveMouse(int mouseX, int mouseY, int windowWidth, int windo
   glutWarpPointer(midX, midY);
 
   float angleY = (float)(midX - mouseX) / 2000;
-  float angleZ = (float)(midY - mouseY) / 500;
+  float angleZ = (float)(midY - mouseY) / 2000;
   
   _logic->rotateCamera(angleZ, -angleY);
 }

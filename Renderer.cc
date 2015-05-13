@@ -128,20 +128,61 @@ void Renderer::render()
 
     glUniform3fv(glGetUniformLocation(_shader, "PointLightPos"), 1, &PointLightPos.x);
     glUniform3fv(glGetUniformLocation(_shader, "PointLightColor"), 1, &PointLightColor.x);
+    
+    int chunkCount = 0;
+    int loopCount = 0;
 
-    for (int z = std::max(0, playerZ - 8); z < std::min(playerZ + 8, 16); z++)
-	for (int x = std::max(0, playerX - 8); x < std::min(playerX + 8, 16); x++)
-	{
-	    Chunk* chunk = _logic->getWorld()->chunks.at(x + z * 16);
+    //printf("render chunks\n");
+    //printf("from z: %f to z: %f\n", _logic->getWorld()->loadPosition.z, _logic->getWorld()->loadPosition.z + LOAD_DEPTH * CHUNK_DEPTH);
 
-	    _modelMatrix = T(chunk->getPos().x, chunk->getPos().y, chunk->getPos().z);
-	    
-	    glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
-	  
-	    glBindVertexArray(chunk->getVao());
-	    
-	    glDrawArrays(GL_TRIANGLES, 0, chunk->getNumVertices());
+    /*for (int z = _logic->getWorld()->loadPosition.z; z < _logic->getWorld()->loadPosition.z + LOAD_DEPTH * CHUNK_DEPTH; z += CHUNK_DEPTH)
+    {
+	for (int x = _logic->getWorld()->loadPosition.x; x < _logic->getWorld()->loadPosition.x + LOAD_WIDTH * CHUNK_WIDTH; x += CHUNK_WIDTH)
+	{	    
+	    Chunk* chunk = _logic->getWorld()->chunks->getChunk(vec3(x, 0, z));
+
+	    if (chunk != NULL)
+	    {
+		_modelMatrix = T(chunk->getPos().x, chunk->getPos().y, chunk->getPos().z);
+		
+		glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
+		
+		glBindVertexArray(chunk->getVao());
+		
+		glDrawArrays(GL_TRIANGLES, 0, chunk->getNumVertices());
+		
+		chunkCount++;
+	    }
+
+	    loopCount++;
 	}
+	}*/
+
+    for (int z = _logic->getWorld()->minZ; z <= _logic->getWorld()->maxZ; z += CHUNK_DEPTH)
+    {
+	for (int x = _logic->getWorld()->minX; x <= _logic->getWorld()->maxX; x += CHUNK_WIDTH)
+	{	    
+	    Chunk* chunk = _logic->getWorld()->chunks->getChunk(vec3(x, 0, z));
+
+	    if (chunk != NULL)
+	    {
+		_modelMatrix = T(chunk->getPos().x, chunk->getPos().y, chunk->getPos().z);
+		
+		glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
+		
+		glBindVertexArray(chunk->getVao());
+		
+		glDrawArrays(GL_TRIANGLES, 0, chunk->getNumVertices());
+		
+		chunkCount++;
+	    }
+
+	    loopCount++;
+	}
+    }
+
+    printf("render chunk count: %i\n", chunkCount);
+    printf("render count: %i\n", loopCount);
 
     //balls
     glUseProgram(_ballShader);

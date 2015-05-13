@@ -1,9 +1,12 @@
 #include "Chunk.h"
 #include <stdio.h>
+#include <fstream>
 #include <iostream>
 
-Chunk::Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ)
+Chunk::Chunk(int chunkId, GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ)
 {   
+    _chunkId = chunkId;
+
     _program = program;
 
     _chunkWidth = chunkWidth;
@@ -13,14 +16,16 @@ Chunk::Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHe
     _activeBlocks.resize(chunkWidth * chunkHeight * chunkDepth);
     
     _setHeightmap(heightmap, heightmapX, heightmapZ);
-    
+    //_setFull();
     _numVertices = 0;
     
     glGenVertexArrays(1, &_vao);
 }
 
-Chunk::Chunk(GLuint program, int chunkWidth, int chunkHeight, int chunkDepth)
+Chunk::Chunk(int chunkId, GLuint program, int chunkWidth, int chunkHeight, int chunkDepth)
 {   
+    _chunkId = chunkId;
+
     _program = program;
 
     _chunkWidth = chunkWidth;
@@ -38,25 +43,26 @@ Chunk::Chunk(GLuint program, int chunkWidth, int chunkHeight, int chunkDepth)
 
 Chunk::~Chunk()
 {
-
+    glDeleteBuffers(1, &_vbo);
+    glDeleteVertexArrays(1, &_vao);
+    //printf("delete chunk: %i\n", _chunkId);
 }
 
 void Chunk::_setFull()
 { 
     std::fill(_activeBlocks.begin(), _activeBlocks.end(), true);
-    
+
     for (int y = 0; y < _chunkHeight; y++)
     {
 	for (int x = 0; x < _chunkWidth; x++)
 	{
 	    for (int z = 0; z < _chunkDepth; z++)
-	    {	
+	    {
 		int index = z + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
-		
-		if (index == 18 || index == 19 || index == 20 || index == 21 || index == 23 || index == 24 || index == 25 || index == 26)
-		{
+				
+		if (y == _chunkHeight - 1 && x == 0 && z == 0)
 		    _activeBlocks.at(index) = 0;
-		}
+
 	    }
 	}
     }
@@ -122,10 +128,10 @@ void Chunk::generateChunk()
    
     _numVertices = 0;
     
-    glGenBuffers(1, &_vbo);
-    glBindVertexArray(_vao);
-
     float lightModify = 0.85;
+
+    glGenBuffers(1, &_vbo);  
+    glBindVertexArray(_vao);
 
     for (int y = 0; y < _chunkHeight; y++)
     {
@@ -307,4 +313,58 @@ vec3 Chunk::getPos()
 bool Chunk::isBlockActive(int index)
 {
     return _activeBlocks.at(index);
+}
+
+void Chunk::saveChunk()
+{
+    std::ofstream file;
+
+    file.open("chunks.txt", std::ios::app);
+
+    if (file.is_open())
+    {	
+	if (_chunkId < 10)
+	    file << "   ";
+	else if (_chunkId < 100)
+	    file << "  ";
+	else if (_chunkId < 1000)
+	    file << " ";
+
+	file << _chunkId;
+
+	file << ":";
+	
+	for (int i = 0; i < _activeBlocks.size(); i++)
+	{
+	    file << (int)_activeBlocks.at(i);
+	}
+	
+	file.close();
+    }
+}
+
+void Chunk::loadChunk()
+{
+    std::ifstream file;
+
+    file.open("chunks.txt");
+
+    if (file.is_open())
+    {	
+	file.seekg(_chunkId * _chunkWidth * _chunkHeight * _chunkDepth + 5 * _chunkId + 5, std::ios_base::beg);  
+
+	char bit;
+       
+	for (int i = 0; i < _activeBlocks.size(); i++)
+	{
+	    file.get(bit);
+
+	    if (bit == '1')
+		_activeBlocks.at(i) = true;
+	    else
+		_activeBlocks.at(i) = false;    
+	}
+
+	file.close();
+    }
 }

@@ -61,9 +61,9 @@ static Vertex cube[36] = {
 class Chunk
 {
 public:
-    Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ);
+    Chunk(int chunkId, GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ);
 
-    Chunk(GLuint program, int chunkWidth, int chunkHeight, int chunkDepth);
+    Chunk(int chunkId, GLuint program, int chunkWidth, int chunkHeight, int chunkDepth);
     
     ~Chunk();
 
@@ -75,7 +75,15 @@ public:
 
     bool isBlockActive(int index);
 
+    void saveChunk();
+    void loadChunk();
+
 private: 
+    int _chunkId;
+
+    GLuint _vbo;
+    GLuint _vao;
+
     int _chunkWidth;
     int _chunkHeight;
     int _chunkDepth;
@@ -88,9 +96,6 @@ private:
     int _numVertices;
 
     std::vector<int> _activeBlocks;
-
-    GLuint _vao;
-    GLuint _vbo;
 
     GLuint _program;
 
