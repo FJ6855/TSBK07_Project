@@ -113,12 +113,44 @@ void Chunk::_setTest()
 
 bool Chunk::_blockIsSurrounded(int x, int y, int z)
 {
-    if(x == 0 || x == _chunkWidth || y == 0 || y == _chunkHeight || z == 0 || z == _chunkDepth)
+    if(x == 0 || x == _chunkWidth-1 || y == 0 || y == _chunkHeight-1 || z == 0 || z == _chunkDepth-1)
     {
 	return false;
     }
 
+    //Over
+    int index = z + x * _chunkDepth + (y + 1) * _chunkDepth * _chunkWidth;
+    if(!_activeBlocks.at(index))
+	return false;
 
+    //Under
+    index = z + x * _chunkDepth + (y - 1) * _chunkDepth * _chunkWidth;
+    if(!_activeBlocks.at(index))
+	return false;
+
+    //Right
+    index = z + (x + 1) * _chunkDepth + y * _chunkDepth * _chunkWidth;
+    if(!_activeBlocks.at(index))
+	return false; 
+    
+    //Left
+    index = z + (x - 1) * _chunkDepth + y * _chunkDepth * _chunkWidth;
+    if(!_activeBlocks.at(index))
+	return false;
+    
+    //Forward
+    index = (z - 1) + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
+    if(!_activeBlocks.at(index))
+	return false;
+    
+    //Under
+    index = (z + 1) + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
+    if(!_activeBlocks.at(index))
+	return false;	
+    
+    return true;
+
+    /*
     int topIndex = z + x * _chunkDepth + (y + _detail) * _chunkDepth * _chunkWidth;
 		
     bool topActive = false;
@@ -178,8 +210,9 @@ bool Chunk::_blockIsSurrounded(int x, int y, int z)
 
     if (!backActive)
 	return false;
+    */
 
-    return true;
+    //return true;
 }
 
 void Chunk::generateChunk()
@@ -369,7 +402,10 @@ vec3 Chunk::getPos()
 
 int Chunk::isBlockActive(int index)
 {
-    return _activeBlocks.at(index);
+    if (index >= 0 && index < _activeBlocks.size())
+	return _activeBlocks.at(index);
+    else
+	return 0;
 }
 
 void Chunk::setBlock(vec3 pos, int blockType)
