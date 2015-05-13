@@ -18,8 +18,6 @@ private:
     Logic* _logic;
 
     float _movementSpeed;
-
-    bool _mouseDown;
 };
 
 #endif

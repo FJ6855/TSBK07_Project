@@ -1,8 +1,8 @@
 CCC = g++ -std=c++98 -W -Wall -lGL -lm -DGL_GLEXT_PROTOTYPES
 CCC2 = gcc -std=c99 -W -Wall -lGL -lm -DGL_GLEXT_PROTOTYPES
 
-game : main.o Logic.o World.o Chunk.o Player.o Vertex.o Renderer.o UserInterface.o GL_utilities.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o HashTable.o simplexnoise.o Frustum.o
-	$(CCC) -o game main.o Logic.o World.o Chunk.o Player.o Vertex.o Renderer.o UserInterface.o GL_utilities.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o HashTable.o simplexnoise.o Frustum.o
+game : main.o Logic.o World.o Chunk.o Player.o Ball.o Vertex.o Renderer.o UserInterface.o GL_utilities.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o HashTable.o simplexnoise.o Frustum.o
+	$(CCC) -o game main.o Logic.o World.o Chunk.o Player.o Ball.o Vertex.o Renderer.o UserInterface.o GL_utilities.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o HashTable.o simplexnoise.o Frustum.o
 
 main.o : main.cc
 	$(CCC) -c main.cc
@@ -18,6 +18,9 @@ Chunk.o : Chunk.cc Chunk.h
 
 Player.o : Player.cc Player.h
 	$(CCC) -c Player.cc
+
+Ball.o : Ball.cc Ball.h
+	$(CCC) -c Ball.cc
 
 Vertex.o : Vertex.cc Vertex.h
 	$(CCC) -c Vertex.cc
@@ -53,4 +56,6 @@ Frustum.o : Frustum.cc Frustum.h
 	$(CCC) -c Frustum.cc
 
 clean :
-	rm main.o Logic.o World.o Chunk.o Player.o Vertex.o Renderer.o UserInterface.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o HashTable.o simplexnoise.o
+
+	rm main.o Logic.o World.o Chunk.o Player.o Vertex.o Renderer.o UserInterface.o MicroGlut.o LoadObj.o LoadTGA.o MathUtils.o simplexnoise.o Ball.o Frustum.o HashTable.o
+

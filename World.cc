@@ -208,7 +208,7 @@ void World::_generateWorld(GLuint program)
 
     x1 /= 10;
     x2 /= 10;
-    z1 = 0.005;
+    z1 = 0.01;
 
     for(int x = 0; x <_heightmap.width; x++)
     {
@@ -224,8 +224,8 @@ void World::_generateWorld(GLuint program)
 	{
 	    _createChunk(1, x * CHUNK_WIDTH, z * CHUNK_DEPTH);
 	} 
-    }
-    
+    } 
+
     //printf("table size: %i\n", chunks->getTableSize());
     //chunks->printTable();
 }

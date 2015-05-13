@@ -9,50 +9,54 @@
 
 static float lightValue = 0.85;
 
+#define texX5  0.375
+#define texX0  0.125
+#define texY1  0.375
+#define texY0  0.125
 
 static Vertex cube[36] = {
     //front
-    Vertex({1.0f, 1.0f, 1.0f}, {0, 0, 1}, {1, 0}, lightValue),
-    Vertex({0.0f, 1.0f, 1.0f}, {0, 0, 1}, {0, 0}, lightValue),
-    Vertex({0.0f, 0.0f, 1.0f}, {0, 0, 1}, {0, 1},lightValue),
-    Vertex({1.0f, 1.0f, 1.0f}, {0, 0, 1}, {1, 0},lightValue),
-    Vertex({0.0f, 0.0f, 1.0f}, {0, 0, 1}, {0, 1} , lightValue),
-    Vertex({1.0f, 0.0f, 1.0f}, {0, 0, 1}, {1, 1}, lightValue),
+    Vertex({1.0f, 1.0f, 1.0f}, {0, 0, 1}, {texX5, texY0}, lightValue),
+    Vertex({0.0f, 1.0f, 1.0f}, {0, 0, 1}, {texX0, texY0}, lightValue),
+    Vertex({0.0f, 0.0f, 1.0f}, {0, 0, 1}, {texX0, texY1}, lightValue),
+    Vertex({1.0f, 1.0f, 1.0f}, {0, 0, 1}, {texX5, texY0}, lightValue),
+    Vertex({0.0f, 0.0f, 1.0f}, {0, 0, 1}, {texX0, texY1}, lightValue),
+    Vertex({1.0f, 0.0f, 1.0f}, {0, 0, 1}, {texX5, texY1}, lightValue),
     //back
-    Vertex({0.0f, 1.0f, 0.0f}, {0, 0, -1}, {1, 0}, lightValue ),
-    Vertex({1.0f, 1.0f, 0.0f}, {0, 0, -1}, {0, 0}, lightValue),
-    Vertex({1.0f, 0.0f, 0.0f}, {0, 0, -1}, {0, 1}, lightValue),
-    Vertex({0.0f, 1.0f, 0.0f}, {0, 0, -1}, {1, 0}, lightValue),
-    Vertex({1.0f, 0.0f, 0.0f}, {0, 0, -1}, {0, 1}, lightValue),
-    Vertex({0.0f, 0.0f, 0.0f}, {0, 0, -1}, {1, 1}, lightValue),
+    Vertex({0.0f, 1.0f, 0.0f}, {0, 0, -1}, {texX5, texY0}, lightValue),
+    Vertex({1.0f, 1.0f, 0.0f}, {0, 0, -1}, {texX0, texY0}, lightValue),
+    Vertex({1.0f, 0.0f, 0.0f}, {0, 0, -1}, {texX0, texY1}, lightValue),
+    Vertex({0.0f, 1.0f, 0.0f}, {0, 0, -1}, {texX5, texY0}, lightValue),
+    Vertex({1.0f, 0.0f, 0.0f}, {0, 0, -1}, {texX0, texY1}, lightValue),
+    Vertex({0.0f, 0.0f, 0.0f}, {0, 0, -1}, {texX5, texY1}, lightValue),
     //down
-    Vertex({1.0f, 0.0f, 1.0f}, {0, -1, 0}, {1, 0}, lightValue),
-    Vertex({0.0f, 0.0f, 1.0f}, {0, -1, 0}, {0, 0}, lightValue),
-    Vertex({0.0f, 0.0f, 0.0f}, {0, -1, 0}, {0, 1}, lightValue),
-    Vertex({1.0f, 0.0f, 1.0f}, {0, -1, 0}, {1, 0}, lightValue),
-    Vertex({0.0f, 0.0f, 0.0f}, {0, -1, 0}, {0, 1}, lightValue),
-    Vertex({1.0f, 0.0f, 0.0f}, {0, -1, 0}, {1, 1}, lightValue),
+    Vertex({1.0f, 0.0f, 1.0f}, {0, -1, 0}, {texX5, texY0}, lightValue),
+    Vertex({0.0f, 0.0f, 1.0f}, {0, -1, 0}, {texX0, texY0}, lightValue),
+    Vertex({0.0f, 0.0f, 0.0f}, {0, -1, 0}, {texX0, texY1}, lightValue),
+    Vertex({1.0f, 0.0f, 1.0f}, {0, -1, 0}, {texX5, texY0}, lightValue),
+    Vertex({0.0f, 0.0f, 0.0f}, {0, -1, 0}, {texX0, texY1}, lightValue),
+    Vertex({1.0f, 0.0f, 0.0f}, {0, -1, 0}, {texX5, texY1}, lightValue),
     //up
-    Vertex({1.0f, 1.0f, 0.0f}, {0, 1, 0}, {1, 0}, lightValue),
-    Vertex({0.0f, 1.0f, 0.0f}, {0, 1, 0}, {0, 0}, lightValue),
-    Vertex({0.0f, 1.0f, 1.0f}, {0, 1, 0}, {0, 1}, lightValue),
-    Vertex({1.0f, 1.0f, 0.0f}, {0, 1, 0}, {1, 0}, lightValue),
-    Vertex({0.0f, 1.0f, 1.0f}, {0, 1, 0}, {0, 1}, lightValue),
-    Vertex({1.0f, 1.0f, 1.0f}, {0, 1, 0}, {1, 1}, lightValue),
+    Vertex({1.0f, 1.0f, 0.0f}, {0, 1, 0}, {texX5, texY0}, lightValue),
+    Vertex({0.0f, 1.0f, 0.0f}, {0, 1, 0}, {texX0, texY0}, lightValue),
+    Vertex({0.0f, 1.0f, 1.0f}, {0, 1, 0}, {texX0, texY1}, lightValue),
+    Vertex({1.0f, 1.0f, 0.0f}, {0, 1, 0}, {texX5, texY0}, lightValue),
+    Vertex({0.0f, 1.0f, 1.0f}, {0, 1, 0}, {texX0, texY1}, lightValue),
+    Vertex({1.0f, 1.0f, 1.0f}, {0, 1, 0}, {texX5, texY1}, lightValue),
     //left
-    Vertex({0.0f, 1.0f, 1.0f}, {-1, 0, 0}, {1, 0}, lightValue),
-    Vertex({0.0f, 1.0f, 0.0f}, {-1, 0, 0}, {0, 0}, lightValue),
-    Vertex({0.0f, 0.0f, 0.0f}, {-1, 0, 0}, {0, 1}, lightValue),
-    Vertex({0.0f, 1.0f, 1.0f}, {-1, 0, 0}, {1, 0}, lightValue),
-    Vertex({0.0f, 0.0f, 0.0f}, {-1, 0, 0}, {0, 1}, lightValue),
-    Vertex({0.0f, 0.0f, 1.0f}, {-1, 0, 0}, {1, 1}, lightValue),
+    Vertex({0.0f, 1.0f, 1.0f}, {-1, 0, 0}, {texX5, texY0}, lightValue),
+    Vertex({0.0f, 1.0f, 0.0f}, {-1, 0, 0}, {texX0, texY0}, lightValue),
+    Vertex({0.0f, 0.0f, 0.0f}, {-1, 0, 0}, {texX0, texY1}, lightValue),
+    Vertex({0.0f, 1.0f, 1.0f}, {-1, 0, 0}, {texX5, texY0}, lightValue),
+    Vertex({0.0f, 0.0f, 0.0f}, {-1, 0, 0}, {texX0, texY1}, lightValue),
+    Vertex({0.0f, 0.0f, 1.0f}, {-1, 0, 0}, {texX5, texY1}, lightValue),
     //right
-    Vertex({1.0f, 1.0f, 0.0f}, {1, 0, 0}, {1, 0}, lightValue),
-    Vertex({1.0f, 1.0f, 1.0f}, {1, 0, 0}, {0, 0}, lightValue),
-    Vertex({1.0f, 0.0f, 1.0f}, {1, 0, 0}, {0, 1}, lightValue),
-    Vertex({1.0f, 1.0f, 0.0f}, {1, 0, 0}, {1, 0}, lightValue),
-    Vertex({1.0f, 0.0f, 1.0f}, {1, 0, 0}, {0, 1}, lightValue),
-    Vertex({1.0f, 0.0f, 0.0f}, {1, 0, 0}, {1, 1}, lightValue)};
+    Vertex({1.0f, 1.0f, 0.0f}, {1, 0, 0}, {texX5, texY0}, lightValue),
+    Vertex({1.0f, 1.0f, 1.0f}, {1, 0, 0}, {texX0, texY0}, lightValue),
+    Vertex({1.0f, 0.0f, 1.0f}, {1, 0, 0}, {texX0, texY1}, lightValue),
+    Vertex({1.0f, 1.0f, 0.0f}, {1, 0, 0}, {texX5, texY0}, lightValue),
+    Vertex({1.0f, 0.0f, 1.0f}, {1, 0, 0}, {texX0, texY1}, lightValue),
+    Vertex({1.0f, 0.0f, 0.0f}, {1, 0, 0}, {texX5, texY1}, lightValue)};
 
 class Chunk
 {
@@ -92,8 +96,6 @@ private:
     vec3 _pos;
     
     int _numVertices;
-
-    int _activeBlocksCount;
 
     std::vector<bool> _activeBlocks;
 

@@ -21,6 +21,13 @@ Logic::Logic()
 
     _frustum->farHeight = 2 * tan((fovDegree / 2) * 3.14 / 180.0f) * far;
     _frustum->farWidth = _frustum->farHeight * aspectRatio;
+
+    _ballIndex = 0;
+
+    for(int i = 0; i < 15; i++)
+    {
+	_balls[i] = NULL;
+    }
 }
 
 Logic::~Logic()
@@ -104,6 +111,9 @@ void Logic::_physics()
 
 	movePlayerY(yvel);
     }
+
+    _ballMovement();
+
 }
 
 void Logic::moveCamera(float amount)
@@ -172,7 +182,7 @@ void Logic::strafePlayer(float amount)
     
     _cameraPos = _player->getPosition();
     _cameraPos.y += 1.5;
-    _cameraLookAt = VectorAdd(_cameraPos, viewVector );
+    _cameraLookAt = VectorAdd(_cameraPos, viewVector);
 }
 
 void Logic::rotateCamera(float angleZ, float angleY)
@@ -288,6 +298,47 @@ vec3 Logic::_collision(vec3 oldPos, vec3 newPos)
 
     return newPos;
 }
+void Logic::shootBall()
+{
+    Ball* b = new Ball{getPlayer()->getPosition(), getCameraLookAt()};
+
+    if(_ballIndex > 14)
+    {	
+	_ballIndex = 0;
+    }
+    printf("ballIndex %i\n", _ballIndex);
+    
+    if(_balls[_ballIndex] != NULL)
+    {
+	delete _balls[_ballIndex];
+	_balls[_ballIndex] = NULL;
+    }
+    
+    _balls[_ballIndex] = b;
+    
+    _ballIndex++;
+
+}
+void Logic::_ballMovement()
+{
+    for(int i = 0; i < 15; i++)
+    {
+	Ball* b = _balls[i];
+	if(_balls[i] != NULL)
+	{
+	    vec3 newPos =  _ballCollision(b->getPosition(), VectorAdd(b->getPosition(), b->getDirection()));
+	    b->setPosition(newPos);
+
+	    printf("%f. %f. %f. \n,",b->getDirection().x, b->getDirection().y, b->getDirection().z);
+	}
+    }
+}
+vec3 Logic::_ballCollision(vec3 pos, vec3 amount)
+{
+    //collision
+
+    
+}
 
 void Logic::_updateFrustum()
 {
@@ -356,4 +407,9 @@ World* Logic::getWorld()
 Player* Logic::getPlayer()
 {
     return _player;
+}
+
+Ball* Logic::getBall(int index)
+{
+    return _balls[index];
 }

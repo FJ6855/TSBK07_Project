@@ -6,8 +6,6 @@ UserInterface::UserInterface(Logic* logic)
     _logic = logic;
 
     _movementSpeed = 0.01f;
-
-    _mouseDown = false;
 }
 
 UserInterface::~UserInterface()
@@ -59,12 +57,16 @@ void UserInterface::update()
 	_logic->setFreeCam(false);
     }
 
-    if(glutMouseIsDown(1) && !_mouseDown)
-    {
-	_mouseDown = true;
 
-	_logic->removeBlock();
-    } 
+    // if(glutMouseIsDown(1) && !_mouseDown)
+    // {
+    // 	_logic->removeBlock();
+    // } 
+
+    if(glutMouseIsDown(1))
+    { 
+	_logic->shootBall();
+    }
 }
 
 void UserInterface::moveMouse(int mouseX, int mouseY, int windowWidth, int windowHeight)
