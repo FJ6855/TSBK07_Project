@@ -2,7 +2,7 @@
 
 Logic::Logic()
 {    
-    _freeCam = false;
+    _freeCam = true;
 
     _player = new Player();
 
@@ -12,6 +12,15 @@ Logic::Logic()
     _cameraLookAt.x = _cameraPos.x + 1;
     _cameraLookAt.y = _cameraPos.y - 0.5;
     _cameraUp = { 0.0f, 1.0f, 0.0f };
+
+    _frustum = new Frustum();
+
+    // Calculate the near and far planes width and height
+    _frustum->nearHeight = 2 * tan((fovDegree / 2) * 3.14 / 180.0f) * near;
+    _frustum->nearWidth = _frustum->nearHeight * aspectRatio;
+
+    _frustum->farHeight = 2 * tan((fovDegree / 2) * 3.14 / 180.0f) * far;
+    _frustum->farWidth = _frustum->farHeight * aspectRatio;
 }
 
 Logic::~Logic()
@@ -21,26 +30,34 @@ Logic::~Logic()
 
     delete _player;
     _player = NULL;
+
+    delete _frustum;
+    _frustum = NULL;
 }
 
 void Logic::update()
 {
+    _updateFrustum();
+
+    _world->update();
+	
+    printf("%f, %f, %f\n", _player->getPosition().x, _player->getPosition().y, _player->getPosition().z);
+
     if (_freeCam)
-    {
-	_world->update();
+    {		
+	_world->updateRenderList(_frustum, _cameraPos);
     }
     else
-    {
-	_world->update();
+    {	
+	_physics();
+	
+	_world->loadChunks(_player->getPosition());
+	
+	_world->updateRenderList(_frustum, _player->getPosition());
     }
 
-    //printf("update physics\n");
 
-    _physics();
-
-    _world->loadChunks(_player->getPosition());
-
-    _world->updateChunks(_cameraPos, _cameraLookAt, _cameraUp, near, far, right, fovDegree, aspectRatio);
+    //printf("player pos: %f, %f %f\n", _player->getPosition().x, _player->getPosition().y, _player->getPosition().z);
 }
 
 void Logic::createWorld(GLuint program)
@@ -172,9 +189,8 @@ void Logic::rotateCamera(float angleZ, float angleY)
 }
 
 void Logic::removeBlock()
-{
-    
-
+{   
+    _world->removeBlock(259.0f, 7.0f, 258.0f);
 }
 
 vec3 Logic::_collision(vec3 oldPos, vec3 newPos)
@@ -271,6 +287,40 @@ vec3 Logic::_collision(vec3 oldPos, vec3 newPos)
     }
 
     return newPos;
+}
+
+void Logic::_updateFrustum()
+{
+    // Get the direction we are looking
+    vec3 viewVector = Normalize(_cameraLookAt - _cameraPos);
+    
+    // Get the position of the near plane
+    vec3 nearPosition = _cameraPos + viewVector * near;
+    
+    // Get the position of the far plane
+    vec3 farPosition = _cameraPos + viewVector * far;
+    
+    // Get the vector that is orthogonal to the view vector and the up vector
+    vec3 rightVector = CrossProduct(viewVector, _cameraUp);
+
+    // Get the positions of the far and near planes edges
+    _frustum->farLeftPoint = farPosition - rightVector * (_frustum->farWidth / 2);
+    _frustum->farRightPoint = farPosition + rightVector * (_frustum->farWidth / 2);
+
+    _frustum->nearLeftPoint = nearPosition - rightVector * (_frustum->nearWidth / 2);
+    _frustum->nearRightPoint = nearPosition + rightVector * (_frustum->nearWidth / 2);
+
+    // Get the edges of the far and near planes
+    _frustum->leftEdge = _frustum->farLeftPoint - _frustum->nearLeftPoint;
+    _frustum->rightEdge =  _frustum->farRightPoint - _frustum->nearRightPoint;
+    _frustum->topEdge = _frustum->farRightPoint - _frustum->farLeftPoint;
+    _frustum->bottomEdge = _frustum->nearRightPoint - _frustum->nearLeftPoint;
+    
+    // Get the normals to the edges of the far and near planes
+    _frustum->leftEdgeNormal = Normalize(CrossProduct(_frustum->leftEdge, vec3(0.0, 1.0f, 0.0f)));
+    _frustum->rightEdgeNormal = Normalize(CrossProduct(_frustum->rightEdge, vec3(0.0, -1.0f, 0.0f)));
+    _frustum->topEdgeNormal = Normalize(CrossProduct(_frustum->topEdge, vec3(0.0, 1.0f, 0.0f)));
+    _frustum->bottomEdgeNormal = Normalize(CrossProduct(_frustum->bottomEdge, vec3(0.0, -1.0f, 0.0f)));
 }
 
 void Logic::setFreeCam(bool value)

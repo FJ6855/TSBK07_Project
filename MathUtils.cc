@@ -88,6 +88,36 @@ vec3 CalcNormalVector(vec3 a, vec3 b, vec3 c)
 	return n;
 }
 
+bool PointIsOnPositiveSide(vec3 point, vec3 normal, vec3 pointOnLine)
+{
+    //vec3 n = Normalize(vec3(-lineDir.z, 0.0f, lineDir.x));
+
+    float D = DotProduct(ScalarMult(normal, -1), pointOnLine);
+    
+    return DotProduct(point, normal) + D > 0;
+}
+
+bool LinePlaneIntersection(vec3 l, vec3 l0, vec3 planeNormal, vec3 p0)
+{
+    return DotProduct(l, planeNormal) != 0;
+}
+
+bool LinePlaneIntersection(vec3 l, vec3 l0, vec3 planeNormal, vec3 p0, vec3& intersection)
+{
+    if (DotProduct(l, planeNormal) != 0)
+    {
+	GLfloat d = DotProduct(VectorSub(p0, l0), planeNormal) / DotProduct(l, planeNormal);
+
+	intersection = VectorAdd(ScalarMult(l, d), l0);
+	
+	return true;
+    }    
+    else
+    {
+	return false;
+    }
+}
+
 //Matrix
 
 mat4 IdentityMatrix()

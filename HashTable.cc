@@ -10,26 +10,7 @@ HashTable::HashTable(int tableSize)
   
 HashTable::~HashTable() 
 {
-    for (int i = 0; i < _table.size(); i++)
-    {
-	Node* node = _table.at(i);
-
-	if (node != NULL) 
-	{
-	    Node *prevNode = NULL;
-	    
-	    while (node != NULL) 
-	    {
-		prevNode = node;
-
-		node = node->next;
-
-		delete node;
-		
-		--_size;
-	    }
-	}
-    }
+    freeTable();
 }
 
 Node* HashTable::get(const vec3& key) 
@@ -137,6 +118,19 @@ void HashTable::remove(const vec3& key)
 	}
     }
 }
+
+void HashTable::freeTable()
+{
+    for (int i = 0; i < _table.size(); ++i)
+    {
+	if (_table.at(i) != NULL)
+	{
+	    remove(_table.at(i)->key);
+	}
+    }
+
+    printf("free table size: %i\n", _size);
+}
   
 int HashTable::getHash(const vec3& key)
 {
@@ -186,4 +180,9 @@ int HashTable::getTableSize()
 int HashTable::getNumberOfCrashes()
 {
     return _crashes;
+}
+
+bool HashTable::chunkExistsAt(vec3 key)
+{
+    return getChunk(key) != NULL;
 }

@@ -22,10 +22,6 @@ int main(int argc, char* argv[])
 {
     init(argc, argv);
 
-    while(true)
-    {
-	run();
-    }
     return 0;
 }
 
@@ -68,15 +64,14 @@ float fps=0.0f;
 void run()
 {
     //Input
+    userInterface->update(); 
 
     //Update
-    userInterface->update();
-
     logic->update();
     
-    //render
+    //Render
     renderer->render();
-
+    
     frame++;
     time2 = glutGet(GLUT_ELAPSED_TIME);
 
@@ -87,7 +82,7 @@ void run()
 	frame = 0;
     }
 
-    printf("fps: %f\n", fps);
+    //printf("fps: %f\n", fps);
 }
 
 void mouseMovement(int x, int y)

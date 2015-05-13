@@ -4,15 +4,7 @@
 #include "MathUtils.h"
 #include "World.h"
 #include "Player.h"
-
-#define near .1
-#define far 200.0
-#define right 0.5
-#define left -0.5
-#define top 0.5
-#define bottom -0.5
-#define fovDegree 45.0
-#define aspectRatio 16.0 / 9.0
+#include "Frustum.h"
 
 class Logic
 {
@@ -52,7 +44,6 @@ public:
     
   
 private:
-
     bool _freeCam;
    
     vec3 _cameraPos;
@@ -65,8 +56,11 @@ private:
 
     Player* _player;
 
+    Frustum* _frustum;
+
     vec3 _collision(vec3 oldPos, vec3 newPos);
     void _physics();
+    void _updateFrustum();
 };
 
 #endif
