@@ -10,7 +10,7 @@ Renderer::Renderer(Logic* logic)
 
     _projectionMatrix = perspective(fovDegree, aspectRatio, near, far);
 
-    glClearColor(1.0, 1.0, 1.0, 0);
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glEnable(GL_DEPTH_TEST);
 
     _shader = loadShaders("shader.vert", "shader.frag");
@@ -130,57 +130,29 @@ void Renderer::render()
 
     glUniform3fv(glGetUniformLocation(_shader, "PointLightPos"), 1, &PointLightPos.x);
     glUniform3fv(glGetUniformLocation(_shader, "PointLightColor"), 1, &PointLightColor.x);
+    glUniform3fv(glGetUniformLocation(_shader, "CameraPos"), 1, &_logic->getCameraPos().x);
     
     int chunkCount = 0;
     int loopCount = 0;
 
-    //printf("render chunks\n");
-    //printf("from z: %f to z: %f\n", _logic->getWorld()->loadPosition.z, _logic->getWorld()->loadPosition.z + LOAD_DEPTH * CHUNK_DEPTH);
+    for (int i = 0; i < _logic->getWorld()->renderList.size(); ++i)
+    {	    
+	Chunk* chunk = _logic->getWorld()->chunks->getChunk(_logic->getWorld()->renderList.at(i));
+	
+	if (chunk != NULL)
+	{
+	    _modelMatrix = T(chunk->getPos().x, chunk->getPos().y, chunk->getPos().z);
+	    
+	    glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
+		
+	    glBindVertexArray(chunk->getVao());
 
-    /*for (int z = _logic->getWorld()->loadPosition.z; z < _logic->getWorld()->loadPosition.z + LOAD_DEPTH * CHUNK_DEPTH; z += CHUNK_DEPTH)
-    {
-	for (int x = _logic->getWorld()->loadPosition.x; x < _logic->getWorld()->loadPosition.x + LOAD_WIDTH * CHUNK_WIDTH; x += CHUNK_WIDTH)
-	{	    
-	    Chunk* chunk = _logic->getWorld()->chunks->getChunk(vec3(x, 0, z));
-
-	    if (chunk != NULL)
-	    {
-		_modelMatrix = T(chunk->getPos().x, chunk->getPos().y, chunk->getPos().z);
-		
-		glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
-		
-		glBindVertexArray(chunk->getVao());
-		
-		glDrawArrays(GL_TRIANGLES, 0, chunk->getNumVertices());
-		
-		chunkCount++;
-	    }
-
-	    loopCount++;
+	    glDrawArrays(GL_TRIANGLES, 0, chunk->getNumVertices());
+	    
+	    chunkCount++;
 	}
-	}*/
-
-    for (int z = _logic->getWorld()->minZ; z <= _logic->getWorld()->maxZ; z += CHUNK_DEPTH)
-    {
-	for (int x = _logic->getWorld()->minX; x <= _logic->getWorld()->maxX; x += CHUNK_WIDTH)
-	{	    
-	    Chunk* chunk = _logic->getWorld()->chunks->getChunk(vec3(x, 0, z));
-
-	    if (chunk != NULL)
-	    {
-		_modelMatrix = T(chunk->getPos().x, chunk->getPos().y, chunk->getPos().z);
-		
-		glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
-		
-		glBindVertexArray(chunk->getVao());
-		
-		glDrawArrays(GL_TRIANGLES, 0, chunk->getNumVertices());
-		
-		chunkCount++;
-	    }
-
-	    loopCount++;
-	}
+	
+	loopCount++;
     }
 
     printf("render chunk count: %i\n", chunkCount);

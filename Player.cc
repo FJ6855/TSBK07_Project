@@ -3,7 +3,7 @@
 
 Player::Player()
 {
-    _position = vec3(24.0f, 20.0f, 24.0f);
+    _position = vec3(15.0f, 20.0f, 15.0f);
     _direction = vec3(0.0f, 0.0f, 0.0f);
     _yVel = 0;
     _walking = false;

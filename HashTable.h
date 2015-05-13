@@ -40,12 +40,14 @@ public:
     void remove(const vec3& key);
 
     int getHash(const vec3& key);
+    void freeTable();
 
     void printTable();
     void printNode(Node* node);
 
     int getTableSize();
     int getNumberOfCrashes();
+    bool chunkExistsAt(vec3 key);
 
 private:
     std::vector<Node*> _table;

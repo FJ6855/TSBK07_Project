@@ -3,9 +3,11 @@
 #include <fstream>
 #include <iostream>
 
-Chunk::Chunk(int chunkId, GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ)
+Chunk::Chunk(int chunkId, int detail, GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ)
 {   
     _chunkId = chunkId;
+    
+    _detail = 1;
 
     _program = program;
 
@@ -22,9 +24,11 @@ Chunk::Chunk(int chunkId, GLuint program, TextureData* heightmap, int chunkWidth
     glGenVertexArrays(1, &_vao);
 }
 
-Chunk::Chunk(int chunkId, GLuint program, int chunkWidth, int chunkHeight, int chunkDepth)
+Chunk::Chunk(int chunkId, int detail, GLuint program, int chunkWidth, int chunkHeight, int chunkDepth)
 {   
     _chunkId = chunkId;
+
+    _detail = 1;
 
     _program = program;
 
@@ -51,21 +55,6 @@ Chunk::~Chunk()
 void Chunk::_setFull()
 { 
     std::fill(_activeBlocks.begin(), _activeBlocks.end(), true);
-
-    for (int y = 0; y < _chunkHeight; y++)
-    {
-	for (int x = 0; x < _chunkWidth; x++)
-	{
-	    for (int z = 0; z < _chunkDepth; z++)
-	    {
-		int index = z + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
-				
-		if (y == _chunkHeight - 1 && x == 0 && z == 0)
-		    _activeBlocks.at(index) = 0;
-
-	    }
-	}
-    }
 }
 
 void Chunk::_setEmpty()
@@ -122,10 +111,74 @@ void Chunk::_setTest()
     }
 }
 
+bool Chunk::_blockIsSurrounded(int x, int y, int z)
+{
+    int topIndex = z + x * _chunkDepth + (y + _detail) * _chunkDepth * _chunkWidth;
+		
+    bool topActive = false;
+
+    if (topIndex >= 0 && topIndex < _activeBlocks.size())
+	topActive = _activeBlocks.at(topIndex);
+
+    if (!topActive)
+	return false;
+		
+    int bottomIndex = z + x * _chunkDepth + (y - _detail) * _chunkDepth * _chunkWidth;
+
+    bool bottomActive = true;
+
+    if (bottomIndex >= 0 && bottomIndex < _activeBlocks.size())
+	bottomActive = _activeBlocks.at(bottomIndex);
+
+    if (!bottomActive)
+	return false;
+
+    int leftIndex = (z - _detail) + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
+
+    bool leftActive = true;
+
+    if (leftIndex >= 0 && leftIndex < _activeBlocks.size())
+	leftActive = _activeBlocks.at(leftIndex);
+
+    if (!leftActive)
+	return false;
+
+    int rightIndex = (z + _detail) + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
+
+    bool rightActive = true;
+
+    if (rightIndex >= 0 && rightIndex < _activeBlocks.size())
+	rightActive = _activeBlocks.at(rightIndex);
+
+    if (!rightActive)
+	return false;
+		
+    int frontIndex = z + (x + _detail) * _chunkDepth + y * _chunkDepth * _chunkWidth;
+
+    bool frontActive = true;
+
+    if (frontIndex >= 0 && frontIndex < _activeBlocks.size())
+	frontActive = _activeBlocks.at(frontIndex);
+
+    if (!frontActive)
+	return false;
+
+    int backIndex = z + (x - _detail) * _chunkDepth + y * _chunkDepth * _chunkWidth;
+
+    bool backActive = true;
+
+    if (backIndex >= 0 && backIndex < _activeBlocks.size())
+	backActive = _activeBlocks.at(backIndex);
+
+    if (!backActive)
+	return false;
+
+    return true;
+}
+
 void Chunk::generateChunk()
 {
     Vertex _vertices[(_chunkHeight * _chunkWidth * _chunkDepth) * 36];
-   
     _numVertices = 0;
     
     float lightModify = 0.85;
@@ -138,8 +191,8 @@ void Chunk::generateChunk()
 	for (int x = 0; x < _chunkWidth; x++)
 	{
 	    for (int z = 0; z < _chunkDepth; z++)
-	    {
-		if (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth))
+	    {		
+		if (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth) && !_blockIsSurrounded(x, y, z))
 		{
 		    for(int i = 0; i < 36 ; i++)
 		    {
@@ -154,8 +207,7 @@ void Chunk::generateChunk()
 						
 		    }
 
-		    //Ambient occlusion vertical
-		    
+		    //Ambient occlusion vertical		    
 		    if(z != 0 && x != 0 && _activeBlocks.at(z-1 + (x-1) * _chunkDepth + y * _chunkDepth * _chunkWidth))
 		    {
 			_vertices[_numVertices + 25].lightValue *= lightModify;
@@ -313,6 +365,14 @@ vec3 Chunk::getPos()
 bool Chunk::isBlockActive(int index)
 {
     return _activeBlocks.at(index);
+}
+
+void Chunk::setBlockActive(vec3 pos, bool active)
+{
+    int index = pos.z + pos.x * _chunkDepth + pos.y * _chunkDepth * _chunkWidth;
+    printf("index: %i\n", index);
+    if (index >= 0 && index < _activeBlocks.size())
+	_activeBlocks.at(index) = active;
 }
 
 void Chunk::saveChunk()

@@ -4,6 +4,7 @@
 #include "MathUtils.h"
 #include "World.h"
 #include "Player.h"
+#include "Frustum.h"
 #include "Ball.h"
 
 #define near .1
@@ -56,7 +57,6 @@ public:
     void shootBall();    
   
 private:
-
     bool _freeCam;
    
     vec3 _cameraPos;
@@ -69,9 +69,13 @@ private:
 
     Player* _player;
 
+    Frustum* _frustum;
+
     Ball* _balls[15];
 
     int _ballIndex;
+
+    void _updateFrustum();
 
     vec3 _collision(vec3 oldPos, vec3 newPos);
     void _physics();

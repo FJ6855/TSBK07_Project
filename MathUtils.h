@@ -43,6 +43,9 @@ vec3 ScalarMult(vec3 a, GLfloat s);
 GLfloat Norm(vec3 a);
 vec3 Normalize(vec3 a);
 vec3 CalcNormalVector(vec3 a, vec3 b, vec3 c);
+bool PointIsOnPositiveSide(vec3 point, vec3 normal, vec3 pointOnLine);
+bool LinePlaneIntersection(vec3 l, vec3 l0, vec3 planeNormal, vec3 p0);
+bool LinePlaneIntersection(vec3 l, vec3 l0, vec3 planeNormal, vec3 p0, vec3& intersection);
 
 //Matrix
 mat4 IdentityMatrix();
