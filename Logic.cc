@@ -48,7 +48,7 @@ void Logic::update()
 
     _world->update();
 	
-    printf("%f, %f, %f\n", _player->getPosition().x, _player->getPosition().y, _player->getPosition().z);
+    //printf("%f, %f, %f\n", _player->getPosition().x, _player->getPosition().y, _player->getPosition().z);
 
     if (_freeCam)
     {		
@@ -198,9 +198,13 @@ void Logic::rotateCamera(float angleZ, float angleY)
     _cameraLookAt = VectorAdd(_cameraPos, MultVec3(ArbRotate(orthoViewVector, angleZ), viewVector));
 }
 
-void Logic::removeBlock()
+void Logic::removeBlock(vec3 pos)
 {   
-    _world->removeBlock(259.0f, 7.0f, 258.0f);
+    vec3 position = pos;
+    position.y += 1.5;
+    vec3 viewVector = Normalize(VectorSub(_cameraLookAt, _cameraPos));
+    
+    _world->removeBlock(position, viewVector );
 }
 
 vec3 Logic::_collision(vec3 oldPos, vec3 newPos)

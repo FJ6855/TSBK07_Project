@@ -73,8 +73,8 @@ public:
     vec3 getPos();
     void generateChunk();
 
-    bool isBlockActive(int index);
-    void setBlockActive(vec3 pos, bool active);
+    int isBlockActive(int index);
+    void setBlock(vec3 pos, int blockType);
 
     void saveChunk();
     void loadChunk();

@@ -10,9 +10,13 @@ out vec4 outColor;
 uniform sampler2D tex;
 uniform vec3 PointLightColor;
 uniform vec3 PointLightPos;
+uniform vec3 CameraPos;
 
 void main(void)
 {
+	float distanceFromCamera = length(fragPosition - CameraPos);
+	
+
 	//TOTAL LIGHT
 	vec3 Light = vec3(0.0, 0.0, 0.0);
 
@@ -38,6 +42,8 @@ void main(void)
 
 	Light = Light * fragLightValue;
 
-	outColor = vec4(texture(tex, fragTexCoord)) * vec4(Light,1.0);
+	outColor = vec4(texture(tex, fragTexCoord)) * vec4(Light,1.0)
+	+  vec4(0.8, 0.8, 0.8, 1.0) * clamp(distanceFromCamera *
+	distanceFromCamera / 7000, 0, 1);
 
 } 

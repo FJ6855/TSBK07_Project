@@ -361,17 +361,17 @@ vec3 Chunk::getPos()
     return _pos;
 }
 
-bool Chunk::isBlockActive(int index)
+int Chunk::isBlockActive(int index)
 {
     return _activeBlocks.at(index);
 }
 
-void Chunk::setBlockActive(vec3 pos, bool active)
+void Chunk::setBlock(vec3 pos, int blockType)
 {
     int index = pos.z + pos.x * _chunkDepth + pos.y * _chunkDepth * _chunkWidth;
-    printf("index: %i\n", index);
+    //printf("index: %i\n", index);
     if (index >= 0 && index < _activeBlocks.size())
-	_activeBlocks.at(index) = active;
+	_activeBlocks.at(index) = blockType;
 }
 
 void Chunk::saveChunk()

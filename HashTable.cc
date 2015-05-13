@@ -129,7 +129,7 @@ void HashTable::freeTable()
 	}
     }
 
-    printf("free table size: %i\n", _size);
+    //printf("free table size: %i\n", _size);
 }
   
 int HashTable::getHash(const vec3& key)

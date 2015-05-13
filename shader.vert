@@ -13,6 +13,7 @@ out vec3 fragPosition;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
+
 void main(void)
 {	
 	fragNormal = mat3(modelMatrix) * inNormal;

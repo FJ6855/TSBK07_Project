@@ -57,16 +57,15 @@ void UserInterface::update()
 	_logic->setFreeCam(false);
     }
 
+    //if(glutMouseIsDown(1))
+    //{
+    //	_logic->removeBlock(_logic->getPlayer()->getPosition());
+    //} 
 
-    // if(glutMouseIsDown(1) && !_mouseDown)
-    // {
-    // 	_logic->removeBlock();
-    // } 
-
-    if(glutMouseIsDown(1))
-    { 
-	_logic->shootBall();
-    }
+    //if(glutMouseIsDown(1))
+    //{ 
+    //_logic->shootBall();
+    //}
 }
 
 void UserInterface::moveMouse(int mouseX, int mouseY, int windowWidth, int windowHeight)

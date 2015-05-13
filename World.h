@@ -42,7 +42,7 @@ public:
    
     Chunk* getChunkAtPosition(vec3 position);
 
-    void removeBlock(int x, int y, int z);
+    void removeBlock(vec3 pos, vec3 direction);
 
     void update();
 

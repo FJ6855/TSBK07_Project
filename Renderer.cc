@@ -35,7 +35,7 @@ Renderer::Renderer(Logic* logic)
 
     glUniform1i(glGetUniformLocation(_skyboxShader, "texUnit"), 0);
 
-    LoadTGATextureSimple("skybox.tga", &_skyboxTexture);
+    LoadTGATextureSimple("skyboxFog.tga", &_skyboxTexture);
 
     //stones
     glUseProgram(_shader);
@@ -155,8 +155,8 @@ void Renderer::render()
 	loopCount++;
     }
 
-    printf("render chunk count: %i\n", chunkCount);
-    printf("render count: %i\n", loopCount);
+    //printf("render chunk count: %i\n", chunkCount);
+    //printf("render count: %i\n", loopCount);
 
     //balls
     glUseProgram(_ballShader);

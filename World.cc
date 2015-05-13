@@ -60,20 +60,25 @@ void World::update()
     // printf("update world done!\n");
 }
 
-void World::removeBlock(int x, int y, int z)
+void World::removeBlock(vec3 pos, vec3 direction)
 {
-    int chunkX = x - x % CHUNK_WIDTH;
-    int chunkZ = z - z % CHUNK_DEPTH;
+    vec3 blockPos = VectorAdd(pos, direction);
+
+    printf("Player pos, %f, %f\n", pos.x, pos.z);
+    printf("block pos, %f, %f\n", blockPos.x, blockPos.z);
+
+    int chunkX = blockPos.x - (int)blockPos.x % CHUNK_WIDTH;
+    int chunkZ = blockPos.z - (int)blockPos.z % CHUNK_DEPTH;
+
     
+
     Chunk* c = chunks->getChunk(vec3(chunkX, 0, chunkZ));
-        
-    if (c != NULL)
+   
+    if(c != NULL)
     {
-/*	c->setBlockActive(vec3(x - c->getPos().x, y, z - c->getPos().z), false);
-	
-	c->generateChunk();
-	
-	_updateList.push_back(c);*/
+	c->setBlock(vec3((int)blockPos.x % CHUNK_WIDTH, (int)blockPos.y % CHUNK_HEIGHT, (int)blockPos.z % CHUNK_DEPTH), 0);
+	//c->generateChunk();
+	_updateList.push_back(c);
     }
 }
 
@@ -127,7 +132,7 @@ void World::loadChunks(vec3 playerPosition)
 
     _lastPlayerPosition = playerPosition;
 
-    printf("table size: %i\n", chunks->getTableSize());
+    //printf("table size: %i\n", chunks->getTableSize());
 }
 
 void World::updateRenderList(Frustum* frustum, vec3 playerPosition)

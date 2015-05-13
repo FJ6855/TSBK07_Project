@@ -13,7 +13,7 @@
 #define left -0.5
 #define top 0.5
 #define bottom -0.5
-#define fovDegree 45.0
+#define fovDegree 80.0
 #define aspectRatio 16.0 / 9.0
 
 class Logic
@@ -52,7 +52,7 @@ public:
 
     void setFreeCam(bool value);
 
-    void removeBlock();
+    void removeBlock(vec3 pos);
 
     void shootBall();    
   
