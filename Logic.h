@@ -4,6 +4,7 @@
 #include "MathUtils.h"
 #include "World.h"
 #include "Player.h"
+#include "Ball.h"
 
 class Logic
 {
@@ -35,12 +36,15 @@ public:
 
     Player* getPlayer();
 
+    Ball* getBall(int index);
+
     void createWorld(GLuint program);
 
     void setFreeCam(bool value);
 
     void removeBlock();
-    
+
+    void shootBall();    
   
 private:
 
@@ -56,8 +60,15 @@ private:
 
     Player* _player;
 
+    Ball* _balls[15];
+
+    int _ballIndex;
+
     vec3 _collision(vec3 oldPos, vec3 newPos);
     void _physics();
+
+    void _ballMovement();
+    vec3 _ballCollision(vec3 pos, vec3 amount);
 };
 
 #endif

@@ -40,11 +40,18 @@ private:
 
     GLuint stoneTexture;
 
+    GLuint _dirtTexture;
+
     Model* _skyboxModel;
     
     GLuint  _skyboxShader;
     
     GLuint _skyboxTexture;
+    
+    Model* _ballModel;
+    
+    GLuint _ballShader;
+
 };
 
 #endif

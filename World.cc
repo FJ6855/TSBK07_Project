@@ -44,7 +44,7 @@ void World::_generateWorld(GLuint program)
 
     srand(time(NULL));
 
-    LoadTGATextureData("test.tga", &_heightmap);
+    LoadTGATextureData("test2.tga", &_heightmap);
     float x1 = rand() % 5 + 1;
     float x2 = rand() % 5 + 1;
     float z1 = rand() % 4 + 1 ;
@@ -72,7 +72,19 @@ void World::_generateWorld(GLuint program)
 	    chunks.push_back(c);
 	    _updateList.push_back(c);
 	}
-    }
+    }    
+    for(int z = 0; z < WORLD_DEPTH; z++)
+      {
+	for(int x = 0; x < WORLD_WIDTH; x++)
+	  {
+	    Chunk* c = new Chunk(program, &_heightmap, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_DEPTH, x * CHUNK_WIDTH, z * CHUNK_DEPTH);
+	    
+	    c->setPos(vec3(x * CHUNK_WIDTH, 0, z * CHUNK_DEPTH));
+	    
+	    chunks.push_back(c);
+	    _updateList.push_back(c);
+	  }
+      }    
 }
 
 void World::update()

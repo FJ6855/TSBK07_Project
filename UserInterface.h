@@ -18,6 +18,7 @@ private:
     Logic* _logic;
 
     float _movementSpeed;
+
 };
 
 #endif

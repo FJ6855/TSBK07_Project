@@ -17,6 +17,8 @@ Renderer::Renderer(Logic* logic)
 
     _skyboxShader = loadShaders("skyboxShader.vert", "skyboxShader.frag");
 
+    _ballShader = loadShaders("ballShader.vert", "ballShader.frag");
+       
     printError("load shaders");
 
     //skybox
@@ -30,17 +32,7 @@ Renderer::Renderer(Logic* logic)
     glActiveTexture(GL_TEXTURE0);
  
     glBindTexture(GL_TEXTURE_2D, _skyboxTexture);
-    /*
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    */
+
     glUniform1i(glGetUniformLocation(_skyboxShader, "texUnit"), 0);
 
     LoadTGATextureSimple("skybox.tga", &_skyboxTexture);
@@ -54,10 +46,14 @@ Renderer::Renderer(Logic* logic)
 
     glBindTexture(GL_TEXTURE_2D, stoneTexture);
 
-    LoadTGATextureSimple("stone.tga", &stoneTexture);
+    LoadTGATextureSimple("poop.tga", &stoneTexture);
 
     glUniform1i(glGetUniformLocation(_shader, "tex"), 1);
     
+    //balls
+
+    _ballModel = LoadModelPlus("sphere.obj");
+
     printError("load model");
     
     _initSystems();
@@ -75,6 +71,10 @@ void Renderer::_initSystems()
 
     glUseProgram(_skyboxShader);
     glUniformMatrix4fv(glGetUniformLocation(_skyboxShader, "projectionMatrix"), 1, GL_TRUE, _projectionMatrix.m);
+
+    glUseProgram(_ballShader);
+    glUniformMatrix4fv(glGetUniformLocation(_ballShader, "projectionMatrix"), 1, GL_TRUE, _projectionMatrix.m);
+    
 }
 
 void Renderer::render()
@@ -93,10 +93,13 @@ void Renderer::render()
     glActiveTexture(GL_TEXTURE0);
 
     glBindTexture(GL_TEXTURE_2D, _skyboxTexture);
-  
+ 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
     glUniformMatrix4fv(glGetUniformLocation(_skyboxShader, "viewMatrix"), 1, GL_TRUE, _viewMatrix.m);
     
-    _modelMatrix = T(_logic->getCameraPos().x, _logic->getCameraPos().y+0.05 , _logic->getCameraPos().z);
+    _modelMatrix = T(_logic->getCameraPos().x, _logic->getCameraPos().y + 0.05 , _logic->getCameraPos().z);
 
     glUniformMatrix4fv(glGetUniformLocation(_skyboxShader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
 
@@ -126,23 +129,38 @@ void Renderer::render()
     glUniform3fv(glGetUniformLocation(_shader, "PointLightPos"), 1, &PointLightPos.x);
     glUniform3fv(glGetUniformLocation(_shader, "PointLightColor"), 1, &PointLightColor.x);
 
-
     for (int z = std::max(0, playerZ - 8); z < std::min(playerZ + 8, 16); z++)
 	for (int x = std::max(0, playerX - 8); x < std::min(playerX + 8, 16); x++)
 	{
-	    
 	    Chunk* chunk = _logic->getWorld()->chunks.at(x + z * 16);
 
 	    _modelMatrix = T(chunk->getPos().x, chunk->getPos().y, chunk->getPos().z);
 	    
 	    glUniformMatrix4fv(glGetUniformLocation(_shader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
 	  
-
 	    glBindVertexArray(chunk->getVao());
 	    
 	    glDrawArrays(GL_TRIANGLES, 0, chunk->getNumVertices());
 	}
 
+    //balls
+    glUseProgram(_ballShader);
+    
+    glUniform3fv(glGetUniformLocation(_ballShader, "PointLightPos"), 1, &PointLightPos.x);
+    glUniform3fv(glGetUniformLocation(_ballShader, "PointLightColor"), 1, &PointLightColor.x);
+ 
+    glUniformMatrix4fv(glGetUniformLocation(_ballShader, "viewMatrix"), 1, GL_TRUE, _viewMatrix.m);
+    for(int i = 0; i < 15; i++)
+    {
+	if(_logic->getBall(i) != NULL)
+	{
+	    _modelMatrix = T(_logic->getBall(i)->getPosition().x, _logic->getBall(i)->getPosition().y, _logic->getBall(i)->getPosition().z);
+	
+	    glUniformMatrix4fv(glGetUniformLocation(_ballShader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
+    
+	    DrawModel(_ballModel, _ballShader, "inPosition", "inNormal", NULL);
+	}
+    }
     glutSwapBuffers();
 }
 

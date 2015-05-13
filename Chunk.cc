@@ -55,7 +55,7 @@ void Chunk::_setFull()
 		
 		if (index == 18 || index == 19 || index == 20 || index == 21 || index == 23 || index == 24 || index == 25 || index == 26)
 		{
-		    _activeBlocks.at(index) = false;
+		    _activeBlocks.at(index) = 0;
 		}
 	    }
 	}
@@ -79,11 +79,14 @@ void Chunk::_setHeightmap(TextureData* heightmap, int heightmapX, int heightmapZ
 				
 		if (y <= heightmap->imageData[(x + z * heightmap->width) * (heightmap->bpp / 8)])
 		{
-		    _activeBlocks.at(index) = true;
+		  if(y < 5)
+		    _activeBlocks.at(index) = 1;
+		  else
+		    _activeBlocks.at(index) = 2;
 		}		 
 		else
 		{
-		    _activeBlocks.at(index) = false;
+		    _activeBlocks.at(index) = 0;
 		}		
 	    }
 	}
@@ -102,11 +105,11 @@ void Chunk::_setTest()
 
 		if (z < 3 && x < 3 && y < 3)
 		{
-		    _activeBlocks.at(index) = true;
+		    _activeBlocks.at(index) = 1;
 		}		 
 		else
 		{
-		    _activeBlocks.at(index) = false;
+		    _activeBlocks.at(index) = 0;
 		}
 	    }
 	}
@@ -138,6 +141,11 @@ void Chunk::generateChunk()
 			_vertices[_numVertices + i].pos.x += x;
 			_vertices[_numVertices + i].pos.y += y;
 			_vertices[_numVertices + i].pos.z += z;
+			
+			
+			//_vertices[_numVertices + i].texCoord.x += (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth) - 1) / 2;
+			//_vertices[_numVertices + i].texCoord.y -= (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth) - 1) / 2;
+						
 		    }
 
 		    //Ambient occlusion vertical

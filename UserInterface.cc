@@ -6,6 +6,7 @@ UserInterface::UserInterface(Logic* logic)
     _logic = logic;
 
     _movementSpeed = 0.01f;
+
 }
 
 UserInterface::~UserInterface()
@@ -58,10 +59,9 @@ void UserInterface::update()
     }
 
     if(glutMouseIsDown(1))
-    {
-	_logic->removeBlock();
-
-    } 
+    { 
+	_logic->shootBall();
+    }
 }
 
 void UserInterface::moveMouse(int mouseX, int mouseY, int windowWidth, int windowHeight)
