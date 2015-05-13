@@ -203,7 +203,6 @@ void Chunk::generateChunk()
 			
 			
 			_vertices[_numVertices + i].texCoord.x += (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth) - 1) * 0.5;
-			//_vertices[_numVertices + i].texCoord.y -= (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth) - 1) * 0.5;
 						
 		    }
 
