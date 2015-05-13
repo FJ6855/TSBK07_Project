@@ -9,10 +9,10 @@
 
 static float lightValue = 0.85;
 
-#define texX5  0.499
-#define texX0  0.001
-#define texY1  1.0
-#define texY0  0.0
+#define texX5  0.375
+#define texX0  0.125
+#define texY1  0.375
+#define texY0  0.125
 
 static Vertex cube[36] = {
     //front

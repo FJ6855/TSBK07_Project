@@ -46,7 +46,12 @@ Renderer::Renderer(Logic* logic)
 
     glBindTexture(GL_TEXTURE_2D, stoneTexture);
 
-    LoadTGATextureSimple("poop.tga", &stoneTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    LoadTGATextureSimple("textures.tga", &stoneTexture);
 
     glUniform1i(glGetUniformLocation(_shader, "tex"), 1);
     
@@ -94,9 +99,6 @@ void Renderer::render()
 
     glBindTexture(GL_TEXTURE_2D, _skyboxTexture);
  
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    
     glUniformMatrix4fv(glGetUniformLocation(_skyboxShader, "viewMatrix"), 1, GL_TRUE, _viewMatrix.m);
     
     _modelMatrix = T(_logic->getCameraPos().x, _logic->getCameraPos().y + 0.05 , _logic->getCameraPos().z);
