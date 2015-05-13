@@ -113,6 +113,12 @@ void Chunk::_setTest()
 
 bool Chunk::_blockIsSurrounded(int x, int y, int z)
 {
+    if(x == 0 || x == _chunkWidth || y == 0 || y == _chunkHeight || z == 0 || z == _chunkDepth)
+    {
+	return false;
+    }
+
+
     int topIndex = z + x * _chunkDepth + (y + _detail) * _chunkDepth * _chunkWidth;
 		
     bool topActive = false;
@@ -125,7 +131,7 @@ bool Chunk::_blockIsSurrounded(int x, int y, int z)
 		
     int bottomIndex = z + x * _chunkDepth + (y - _detail) * _chunkDepth * _chunkWidth;
 
-    bool bottomActive = true;
+    bool bottomActive = false;
 
     if (bottomIndex >= 0 && bottomIndex < _activeBlocks.size())
 	bottomActive = _activeBlocks.at(bottomIndex);
@@ -135,7 +141,7 @@ bool Chunk::_blockIsSurrounded(int x, int y, int z)
 
     int leftIndex = (z - _detail) + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
 
-    bool leftActive = true;
+    bool leftActive = false;
 
     if (leftIndex >= 0 && leftIndex < _activeBlocks.size())
 	leftActive = _activeBlocks.at(leftIndex);
@@ -145,7 +151,7 @@ bool Chunk::_blockIsSurrounded(int x, int y, int z)
 
     int rightIndex = (z + _detail) + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
 
-    bool rightActive = true;
+    bool rightActive = false;
 
     if (rightIndex >= 0 && rightIndex < _activeBlocks.size())
 	rightActive = _activeBlocks.at(rightIndex);
@@ -155,7 +161,7 @@ bool Chunk::_blockIsSurrounded(int x, int y, int z)
 		
     int frontIndex = z + (x + _detail) * _chunkDepth + y * _chunkDepth * _chunkWidth;
 
-    bool frontActive = true;
+    bool frontActive = false;
 
     if (frontIndex >= 0 && frontIndex < _activeBlocks.size())
 	frontActive = _activeBlocks.at(frontIndex);
@@ -165,7 +171,7 @@ bool Chunk::_blockIsSurrounded(int x, int y, int z)
 
     int backIndex = z + (x - _detail) * _chunkDepth + y * _chunkDepth * _chunkWidth;
 
-    bool backActive = true;
+    bool backActive = false;
 
     if (backIndex >= 0 && backIndex < _activeBlocks.size())
 	backActive = _activeBlocks.at(backIndex);

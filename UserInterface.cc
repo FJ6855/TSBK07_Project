@@ -57,10 +57,10 @@ void UserInterface::update()
 	_logic->setFreeCam(false);
     }
 
-    //if(glutMouseIsDown(1))
-    //{
-    //	_logic->removeBlock(_logic->getPlayer()->getPosition());
-    //} 
+    if(glutMouseIsDown(1))
+    {
+    	_logic->removeBlock(_logic->getPlayer()->getPosition());
+    } 
 
     //if(glutMouseIsDown(1))
     //{ 

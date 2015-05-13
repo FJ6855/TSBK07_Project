@@ -64,24 +64,43 @@ void World::removeBlock(vec3 pos, vec3 direction)
 {
     vec3 blockPos = VectorAdd(pos, direction);
 
-    printf("Player pos, %f, %f\n", pos.x, pos.z);
-    printf("block pos, %f, %f\n", blockPos.x, blockPos.z);
-
     int chunkX = blockPos.x - (int)blockPos.x % CHUNK_WIDTH;
     int chunkZ = blockPos.z - (int)blockPos.z % CHUNK_DEPTH;
-
-    
 
     Chunk* c = chunks->getChunk(vec3(chunkX, 0, chunkZ));
    
     if(c != NULL)
     {
-	c->setBlock(vec3((int)blockPos.x % CHUNK_WIDTH, (int)blockPos.y % CHUNK_HEIGHT, (int)blockPos.z % CHUNK_DEPTH), 0);
-	//c->generateChunk();
-	_updateList.push_back(c);
-    }
-}
+	
+	if(c->isBlockActive((int)blockPos.z % CHUNK_DEPTH + 
+			    ((int)blockPos.x % CHUNK_WIDTH) * CHUNK_DEPTH + 
+			    ((int)blockPos.y % CHUNK_HEIGHT) * CHUNK_DEPTH * CHUNK_WIDTH))
+	{
+	    
+	    c->setBlock(vec3((int)blockPos.x % CHUNK_WIDTH, (int)blockPos.y % CHUNK_HEIGHT, (int)blockPos.z % CHUNK_DEPTH), 0);
+	    _updateList.push_back(c);
+	}
+	else
+	{
+	   
+	    blockPos = VectorAdd(blockPos, direction);
+	    int chunkX = blockPos.x - (int)blockPos.x % CHUNK_WIDTH;
+	    int chunkZ = blockPos.z - (int)blockPos.z % CHUNK_DEPTH;
+	    
+	    Chunk* c = chunks->getChunk(vec3(chunkX, 0, chunkZ));
 
+	    if(c != NULL)
+	    {
+		c->setBlock(vec3((int)blockPos.x % CHUNK_WIDTH, (int)blockPos.y % CHUNK_HEIGHT, (int)blockPos.z % CHUNK_DEPTH), 0);
+		_updateList.push_back(c);
+	    }
+
+	}
+	
+    }
+    
+}
+    
 void World::loadChunks(vec3 playerPosition)
 {
     //printf("load chunks\n");
