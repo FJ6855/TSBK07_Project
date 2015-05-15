@@ -18,6 +18,10 @@ private:
     Logic* _logic;
 
     float _movementSpeed;
+
+    bool _mouseDown;
+
+    int _activeBlockType;
 };
 
 #endif

@@ -6,12 +6,14 @@ Logic::Logic()
 
     _player = new Player();
 
-    _cameraPos = { -10.0f, 30.0f, -20.0f };
+    _cameraPos = vec3(-10.0f, 30.0f, -20.0f);
     _cameraPos.y += 1.5;
+
     _cameraLookAt.z = _cameraPos.z + 1;
     _cameraLookAt.x = _cameraPos.x + 1;
     _cameraLookAt.y = _cameraPos.y - 0.5;
-    _cameraUp = { 0.0f, 1.0f, 0.0f };
+
+    _cameraUp = vec3(0.0f, 1.0f, 0.0f);
 
     _frustum = new Frustum();
 
@@ -44,12 +46,10 @@ Logic::~Logic()
 
 void Logic::update()
 {
-    _updateFrustum();
+    _frustum->updateFrustum(_cameraPos, _cameraLookAt, _cameraUp);
 
     _world->update();
-	
-    //printf("%f, %f, %f\n", _player->getPosition().x, _player->getPosition().y, _player->getPosition().z);
-
+       
     if (_freeCam)
     {		
 	_world->updateRenderList(_frustum, _cameraPos);
@@ -62,9 +62,6 @@ void Logic::update()
 	
 	_world->updateRenderList(_frustum, _player->getPosition());
     }
-
-
-    //printf("player pos: %f, %f %f\n", _player->getPosition().x, _player->getPosition().y, _player->getPosition().z);
 }
 
 void Logic::createWorld(GLuint program)
@@ -198,110 +195,75 @@ void Logic::rotateCamera(float angleZ, float angleY)
     _cameraLookAt = VectorAdd(_cameraPos, MultVec3(ArbRotate(orthoViewVector, angleZ), viewVector));
 }
 
-void Logic::removeBlock(vec3 pos)
+void Logic::changeBlock(int blockType)
 {   
-    vec3 position = pos;
+    vec3 position = _player->getPosition();
     position.y += 1.5;
     vec3 viewVector = Normalize(VectorSub(_cameraLookAt, _cameraPos));
     
-    _world->removeBlock(position, viewVector );
+    _world->changeBlock(position, viewVector, blockType);
 }
 
 vec3 Logic::_collision(vec3 oldPos, vec3 newPos)
-{
-    if (floor(newPos.y) != floor(oldPos.y))
-    {
-	Chunk* c = _world->getChunkAtPosition(newPos);
-
-	if (c != NULL)
-	{
-	    vec3 relativePlayerPos = VectorSub(newPos, c->getPos());
-		    
-	    int index = floor(relativePlayerPos.z) + floor(relativePlayerPos.x) * 
-		CHUNK_DEPTH + floor(relativePlayerPos.y) * CHUNK_DEPTH * CHUNK_WIDTH;
-	    
-	    if (index >= 0 && index <= CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH - 1)
-	    {
-		if (c->isBlockActive(index))
-		{
-		    newPos.y = floor(oldPos.y);
-		    _player->setYVel(0.0f);
-		    _player->setWalking(true);
-		}
-	    }
-	}
-    }    
-    
+{       
     vec3 playerDirection = VectorSub(newPos, oldPos);
 
     playerDirection.x = (playerDirection.x > 0.0f) ? ceil(playerDirection.x) : floor(playerDirection.x);
+    playerDirection.y = (playerDirection.y > 0.0f) ? ceil(playerDirection.y) : floor(playerDirection.y);
     playerDirection.z = (playerDirection.z > 0.0f) ? ceil(playerDirection.z) : floor(playerDirection.z);
 
     _player->setDirection(playerDirection);
 
-    if (floor(newPos.x + .2f * playerDirection.x) != floor(oldPos.x))
-    {
-	vec3 tmp = newPos;
-	    
-	tmp.x += .2f * playerDirection.x;	    
-
-	Chunk* c = _world->getChunkAtPosition(tmp);
-	    
-	if (c != NULL)
+    if (floor(newPos.y) != floor(oldPos.y))
+    {	
+	if (_world->isBlockActive(newPos))
 	{
-	    vec3 relativePlayerPos = VectorSub(newPos, c->getPos());
-		
-	    int index = floor(relativePlayerPos.z) + floor(relativePlayerPos.x + .2f * playerDirection.x) *
-		CHUNK_DEPTH + floor(relativePlayerPos.y) * CHUNK_DEPTH * CHUNK_WIDTH;
-		
-	    if (index >= 0 && index <= CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH - 1)
-	    {
-		if (c->isBlockActive(index))
-		{	 
-		    newPos.x = floor(oldPos.x);
+	    newPos.y = floor(oldPos.y);
 
-		    if (playerDirection.x == 1.0f)
-			newPos.x += 0.8f;
-		    else 
-			newPos.x += 0.2f;
-		}
-	    }
+	    _player->setYVel(0.0f);
+		
+	    _player->setWalking(true);
+	}
+    }
+
+    if (floor(newPos.x + _player->getCollisionOffset() * playerDirection.x) != floor(oldPos.x))
+    {
+	vec3 offsetPos = newPos;
+	    
+	offsetPos.x += _player->getCollisionOffset() * playerDirection.x;	    
+
+	if (_world->isBlockActive(offsetPos))
+	{
+	    newPos.x = floor(oldPos.x);
+	    
+	    if (playerDirection.x == 1.0f)
+		newPos.x += 1.0f - _player->getCollisionOffset();
+	    else 
+		newPos.x += _player->getCollisionOffset();
 	}
     }
 	
-    if (floor(newPos.z + .2f * playerDirection.z) != floor(oldPos.z))
+    if (floor(newPos.z + _player->getCollisionOffset() * playerDirection.z) != floor(oldPos.z))
     {	    
-	vec3 tmp = newPos;
+	vec3 offsetPos = newPos;
 	    
-	tmp.z += .2f * playerDirection.z;	    
+	offsetPos.z += _player->getCollisionOffset() * playerDirection.z;	    
 
-	Chunk* c = _world->getChunkAtPosition(tmp);
-	    
-	if (c != NULL)
+	if (_world->isBlockActive(offsetPos))
 	{
-	    vec3 relativePlayerPos = VectorSub(newPos, c->getPos());
-		
-	    int index = floor(relativePlayerPos.z + .2f * playerDirection.z) + floor(relativePlayerPos.x) * 
-		CHUNK_DEPTH + floor(relativePlayerPos.y) * CHUNK_DEPTH * CHUNK_WIDTH;
-		
-	    if (index >= 0 && index <= CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH - 1)
-	    {
-		if (c->isBlockActive(index))
-		{
-		    newPos.z = floor(oldPos.z);
-
-		    if (playerDirection.z == 1.0f)
-			newPos.z += 0.8f;
-		    else 
-			newPos.z += 0.2f;
-		}
-	    }
+	    newPos.z = floor(oldPos.z);
+	    
+	    if (playerDirection.z == 1.0f)
+		newPos.z += 1.0f - _player->getCollisionOffset();
+	    else 
+		newPos.z += _player->getCollisionOffset();
 	}
-
     }
 
     return newPos;
 }
+
+
 void Logic::shootBall()
 {
     Ball* b = new Ball{getPlayer()->getPosition(), getCameraLookAt()};
@@ -342,40 +304,6 @@ vec3 Logic::_ballCollision(vec3 pos, vec3 amount)
     //collision
 
     
-}
-
-void Logic::_updateFrustum()
-{
-    // Get the direction we are looking
-    vec3 viewVector = Normalize(_cameraLookAt - _cameraPos);
-    
-    // Get the position of the near plane
-    vec3 nearPosition = _cameraPos + viewVector * near;
-    
-    // Get the position of the far plane
-    vec3 farPosition = _cameraPos + viewVector * far;
-    
-    // Get the vector that is orthogonal to the view vector and the up vector
-    vec3 rightVector = CrossProduct(viewVector, _cameraUp);
-
-    // Get the positions of the far and near planes edges
-    _frustum->farLeftPoint = farPosition - rightVector * (_frustum->farWidth / 2);
-    _frustum->farRightPoint = farPosition + rightVector * (_frustum->farWidth / 2);
-
-    _frustum->nearLeftPoint = nearPosition - rightVector * (_frustum->nearWidth / 2);
-    _frustum->nearRightPoint = nearPosition + rightVector * (_frustum->nearWidth / 2);
-
-    // Get the edges of the far and near planes
-    _frustum->leftEdge = _frustum->farLeftPoint - _frustum->nearLeftPoint;
-    _frustum->rightEdge =  _frustum->farRightPoint - _frustum->nearRightPoint;
-    _frustum->topEdge = _frustum->farRightPoint - _frustum->farLeftPoint;
-    _frustum->bottomEdge = _frustum->nearRightPoint - _frustum->nearLeftPoint;
-    
-    // Get the normals to the edges of the far and near planes
-    _frustum->leftEdgeNormal = Normalize(CrossProduct(_frustum->leftEdge, vec3(0.0, 1.0f, 0.0f)));
-    _frustum->rightEdgeNormal = Normalize(CrossProduct(_frustum->rightEdge, vec3(0.0, -1.0f, 0.0f)));
-    _frustum->topEdgeNormal = Normalize(CrossProduct(_frustum->topEdge, vec3(0.0, 1.0f, 0.0f)));
-    _frustum->bottomEdgeNormal = Normalize(CrossProduct(_frustum->bottomEdge, vec3(0.0, -1.0f, 0.0f)));
 }
 
 void Logic::setFreeCam(bool value)

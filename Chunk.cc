@@ -3,32 +3,31 @@
 #include <fstream>
 #include <iostream>
 
-Chunk::Chunk(int chunkId, int detail, GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ)
+Chunk::Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int x, int z)
 {   
-    _chunkId = chunkId;
+    _chunkId = x / chunkWidth + z / chunkDepth * heightmap->width;
     
-    _detail = 1;
-
     _program = program;
 
     _chunkWidth = chunkWidth;
     _chunkHeight = chunkHeight;
     _chunkDepth = chunkDepth;
 
+    _pos = vec3(x, 0, z);
+
     _activeBlocks.resize(chunkWidth * chunkHeight * chunkDepth);
     
-    _setHeightmap(heightmap, heightmapX, heightmapZ);
-    //_setFull();
+    _setHeightmap(heightmap, x, z);
+
     _numVertices = 0;
-    
+
     glGenVertexArrays(1, &_vao);
+    glGenBuffers(1, &_vbo);  
 }
 
-Chunk::Chunk(int chunkId, int detail, GLuint program, int chunkWidth, int chunkHeight, int chunkDepth)
+Chunk::Chunk(GLuint program, int chunkWidth, int chunkHeight, int chunkDepth, int x, int z, float heightmapWidth)
 {   
-    _chunkId = chunkId;
-
-    _detail = 1;
+    _chunkId = x / chunkWidth + z / chunkDepth * heightmapWidth;
 
     _program = program;
 
@@ -36,19 +35,21 @@ Chunk::Chunk(int chunkId, int detail, GLuint program, int chunkWidth, int chunkH
     _chunkHeight = chunkHeight;
     _chunkDepth = chunkDepth;
 
+    _pos = vec3(x, 0, z);
+
     _activeBlocks.resize(chunkWidth * chunkHeight * chunkDepth);
-    
-    _setFull();
     
     _numVertices = 0;
     
     glGenVertexArrays(1, &_vao);
+    glGenBuffers(1, &_vbo);  
 }
 
 Chunk::~Chunk()
 {
     glDeleteBuffers(1, &_vbo);
     glDeleteVertexArrays(1, &_vao);
+
     //printf("delete chunk: %i\n", _chunkId);
 }
 
@@ -74,10 +75,10 @@ void Chunk::_setHeightmap(TextureData* heightmap, int heightmapX, int heightmapZ
 				
 		if (y <= heightmap->imageData[(x + z * heightmap->width) * (heightmap->bpp / 8)])
 		{
-		  if(y < 5)
-		    _activeBlocks.at(index) = 1;
-		  else
-		    _activeBlocks.at(index) = 2;
+		    if(y < 5)
+			_activeBlocks.at(index) = 1;
+		    else
+			_activeBlocks.at(index) = 2;
 		}		 
 		else
 		{
@@ -88,108 +89,54 @@ void Chunk::_setHeightmap(TextureData* heightmap, int heightmapX, int heightmapZ
     }
 }
 
-void Chunk::_setTest()
-{
-    for (int y = 0; y < _chunkHeight; y++)
-    {
-	for (int x = 0; x < _chunkWidth; x++)
-	{
-	    for (int z = 0; z < _chunkDepth; z++)
-	    {	
-		int index = z + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
-
-		if (z < 3 && x < 3 && y < 3)
-		{
-		    _activeBlocks.at(index) = 1;
-		}		 
-		else
-		{
-		    _activeBlocks.at(index) = 0;
-		}
-	    }
-	}
-    }
-}
-
 bool Chunk::_blockIsSurrounded(int x, int y, int z)
 {
-    if(x == 0 || x == _chunkWidth || y == 0 || y == _chunkHeight || z == 0 || z == _chunkDepth)
+    if(x == 0 || x == _chunkWidth-1 || y == 0 || y == _chunkHeight-1 || z == 0 || z == _chunkDepth-1)
     {
 	return false;
     }
 
-
-    int topIndex = z + x * _chunkDepth + (y + _detail) * _chunkDepth * _chunkWidth;
-		
-    bool topActive = false;
-
-    if (topIndex >= 0 && topIndex < _activeBlocks.size())
-	topActive = _activeBlocks.at(topIndex);
-
-    if (!topActive)
-	return false;
-		
-    int bottomIndex = z + x * _chunkDepth + (y - _detail) * _chunkDepth * _chunkWidth;
-
-    bool bottomActive = false;
-
-    if (bottomIndex >= 0 && bottomIndex < _activeBlocks.size())
-	bottomActive = _activeBlocks.at(bottomIndex);
-
-    if (!bottomActive)
+    //Over
+    int index = z + x * _chunkDepth + (y + 1) * _chunkDepth * _chunkWidth;
+    if(!_activeBlocks.at(index))
 	return false;
 
-    int leftIndex = (z - _detail) + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
-
-    bool leftActive = false;
-
-    if (leftIndex >= 0 && leftIndex < _activeBlocks.size())
-	leftActive = _activeBlocks.at(leftIndex);
-
-    if (!leftActive)
+    //Under
+    index = z + x * _chunkDepth + (y - 1) * _chunkDepth * _chunkWidth;
+    if(!_activeBlocks.at(index))
 	return false;
 
-    int rightIndex = (z + _detail) + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
-
-    bool rightActive = false;
-
-    if (rightIndex >= 0 && rightIndex < _activeBlocks.size())
-	rightActive = _activeBlocks.at(rightIndex);
-
-    if (!rightActive)
+    //Right
+    index = z + (x + 1) * _chunkDepth + y * _chunkDepth * _chunkWidth;
+    if(!_activeBlocks.at(index))
+	return false; 
+    
+    //Left
+    index = z + (x - 1) * _chunkDepth + y * _chunkDepth * _chunkWidth;
+    if(!_activeBlocks.at(index))
 	return false;
-		
-    int frontIndex = z + (x + _detail) * _chunkDepth + y * _chunkDepth * _chunkWidth;
-
-    bool frontActive = false;
-
-    if (frontIndex >= 0 && frontIndex < _activeBlocks.size())
-	frontActive = _activeBlocks.at(frontIndex);
-
-    if (!frontActive)
+    
+    //Forward
+    index = (z - 1) + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
+    if(!_activeBlocks.at(index))
 	return false;
-
-    int backIndex = z + (x - _detail) * _chunkDepth + y * _chunkDepth * _chunkWidth;
-
-    bool backActive = false;
-
-    if (backIndex >= 0 && backIndex < _activeBlocks.size())
-	backActive = _activeBlocks.at(backIndex);
-
-    if (!backActive)
-	return false;
-
+    
+    //Under
+    index = (z + 1) + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
+    if(!_activeBlocks.at(index))
+	return false;	
+    
     return true;
 }
 
 void Chunk::generateChunk()
 {
-    Vertex _vertices[(_chunkHeight * _chunkWidth * _chunkDepth) * 36];
+    Vertex* _vertices = new Vertex[(_chunkHeight * _chunkWidth * _chunkDepth) * 36];
+
     _numVertices = 0;
     
     float lightModify = 0.85;
 
-    glGenBuffers(1, &_vbo);  
     glBindVertexArray(_vao);
 
     for (int y = 0; y < _chunkHeight; y++)
@@ -208,8 +155,7 @@ void Chunk::generateChunk()
 			_vertices[_numVertices + i].pos.z += z;
 			
 			
-			_vertices[_numVertices + i].texCoord.x += (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth) - 1) * 0.5;
-						
+			_vertices[_numVertices + i].texCoord.x += (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth) - 1) * 0.5;						
 		    }
 
 		    //Ambient occlusion vertical		    
@@ -345,6 +291,7 @@ void Chunk::generateChunk()
     glVertexAttribPointer(glGetAttribLocation(_program, "inLightValue"), 1, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),(const GLfloat*)(8 * sizeof(GLfloat))); 
     glEnableVertexAttribArray(glGetAttribLocation(_program, "inLightValue"));
 
+    delete _vertices;
 }
 
 GLuint Chunk::getVao()
@@ -369,33 +316,99 @@ vec3 Chunk::getPos()
 
 int Chunk::isBlockActive(int index)
 {
-    return _activeBlocks.at(index);
+    if (index >= 0 && index < _activeBlocks.size())
+	return _activeBlocks.at(index);
 }
 
-void Chunk::setBlock(vec3 pos, int blockType)
+int Chunk::isBlockActive(vec3 blockPos)
+{
+    int index = blockPos.z + blockPos.x * _chunkDepth + blockPos.y * _chunkDepth * _chunkWidth;
+
+    if (index >= 0 && index < _activeBlocks.size())
+	return _activeBlocks.at(index);
+}
+
+bool Chunk::setBlock(vec3 pos, int blockType)
 {
     int index = pos.z + pos.x * _chunkDepth + pos.y * _chunkDepth * _chunkWidth;
-    //printf("index: %i\n", index);
+
+    // check if index is valid, return false otherwise so we don't regenerate the chunk if we don't have to
     if (index >= 0 && index < _activeBlocks.size())
-	_activeBlocks.at(index) = blockType;
+    {
+	if (blockType != 0 && !_activeBlocks.at(index) && _activeBlocks.at(index) != blockType)
+	{
+	    _activeBlocks.at(index) = blockType;
+
+	    return true;
+	}
+	else if (blockType == 0 && _activeBlocks.at(index) != blockType)
+	{
+	    _activeBlocks.at(index) = blockType;
+
+	    return true;
+	}
+	else
+	{
+	    return false;
+	}
+    }
+    else
+    {
+	return false;
+    }
 }
 
-void Chunk::saveChunk()
+void Chunk::saveChunk(bool overwrite)
 {
-    std::ofstream file;
+    std::fstream file;
 
-    file.open("chunks.txt", std::ios::app);
+    file.open("chunks.txt", std::ios::in | std::ios::out);
 
     if (file.is_open())
-    {	
-	if (_chunkId < 10)
-	    file << "   ";
-	else if (_chunkId < 100)
-	    file << "  ";
-	else if (_chunkId < 1000)
-	    file << " ";
+    {
+	if (overwrite)
+	{	    
+	    int id = -1;
+	    char shit = '0';
+	    
+	    while (file.get(shit))
+	    {    
+		if (shit == ' ')
+		{
+		    if (file >> id)
+		    {
+			if (id == _chunkId)
+			{
+			//printf("found id!\n");
+			    break;
+			}
+		    }
+		}
+		
+		file.seekg(_chunkWidth * _chunkHeight * _chunkDepth + 1, std::ios_base::cur);	
+	    }
 
-	file << _chunkId;
+	    file.seekp(file.tellg(), std::ios_base::beg);
+	}
+	else
+	{
+	    file.seekp(0, std::ios_base::end);
+	    
+	    if (_chunkId < 10)
+		file << "      ";
+	    else if (_chunkId < 100)
+		file << "     ";
+	    else if (_chunkId < 1000)
+		file << "    ";
+	    else if (_chunkId < 10000)
+		file << "   ";
+	    else if (_chunkId < 100000)
+		file << "  ";
+	    else if (_chunkId < 1000000)
+		file << " ";
+
+	    file << _chunkId;
+	}
 
 	file << ":";
 	
@@ -416,18 +429,40 @@ void Chunk::loadChunk()
 
     if (file.is_open())
     {	
-	file.seekg(_chunkId * _chunkWidth * _chunkHeight * _chunkDepth + 5 * _chunkId + 5, std::ios_base::beg);  
+	int id = -1;
+	char shit = '0';
 
-	char bit;
-       
+	while (file.get(shit))
+	{      	    
+	    if (shit == ' ')
+	    {
+		if (file >> id)
+		{
+		    if (id == _chunkId)
+		    {
+			//printf("found id!\n");
+			break;
+		    }
+		}
+	    }
+
+	    file.seekg(_chunkWidth * _chunkHeight * _chunkDepth + 1, std::ios_base::cur);
+	}
+
+	char blockType;
+
+	file.get(shit);
+
 	for (int i = 0; i < _activeBlocks.size(); i++)
 	{
-	    file.get(bit);
+	    file.get(blockType);
 
-	    if (bit == '1')
-		_activeBlocks.at(i) = true;
-	    else
-		_activeBlocks.at(i) = false;    
+	    if (blockType == '0')
+		_activeBlocks.at(i) = 0;
+	    else if (blockType == '1')
+		_activeBlocks.at(i) = 1;
+	    else if (blockType == '2')
+		_activeBlocks.at(i) = 2;
 	}
 
 	file.close();

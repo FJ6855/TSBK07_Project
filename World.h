@@ -1,6 +1,8 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+#include <fstream>
+
 #include "Chunk.h"
 #include "LoadTGA.h"
 #include "HashTable.h"
@@ -39,10 +41,12 @@ public:
     ~World();
 
     HashTable* chunks;
+    HashTable* createdChunks;
    
     Chunk* getChunkAtPosition(vec3 position);
+    bool isBlockActive(vec3 pos);
 
-    void removeBlock(vec3 pos, vec3 direction);
+    void changeBlock(vec3 pos, vec3 direction, int blockType);
 
     void update();
 
@@ -60,9 +64,11 @@ private:
     
     std::vector<Chunk*> _updateList;
 
-    void _generateWorld(GLuint program);
+    void _generateWorld();
+    void _generateHeightmap();
+
     void _createChunk(int detail, int x, int z);
-    bool _pointIsInsideFrusum(vec3 p);
+    void _loadChunk(int detail, int x, int z);
 };
 
 #endif

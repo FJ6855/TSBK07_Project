@@ -4,7 +4,7 @@
 #include "MathUtils.h"
 
 #define near .1
-#define far 300.0
+#define far 500.0
 #define right 0.5
 #define left -0.5
 #define top 0.5
@@ -19,6 +19,8 @@ public:
 
     bool pointIsInsideFrustum(vec3 p);
     bool lineIntersectsFrustum(vec3 lineDir, vec3 linePoint);
+
+    void updateFrustum(vec3 cameraPos, vec3 cameraLookAt, vec3 cameraUp);
     
     float nearHeight;
     float nearWidth;

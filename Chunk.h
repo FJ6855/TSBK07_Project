@@ -16,54 +16,54 @@ static float lightValue = 0.85;
 
 static Vertex cube[36] = {
     //front
-    Vertex({1.0f, 1.0f, 1.0f}, {0, 0, 1}, {texX5, texY0}, lightValue),
-    Vertex({0.0f, 1.0f, 1.0f}, {0, 0, 1}, {texX0, texY0}, lightValue),
-    Vertex({0.0f, 0.0f, 1.0f}, {0, 0, 1}, {texX0, texY1}, lightValue),
-    Vertex({1.0f, 1.0f, 1.0f}, {0, 0, 1}, {texX5, texY0}, lightValue),
-    Vertex({0.0f, 0.0f, 1.0f}, {0, 0, 1}, {texX0, texY1}, lightValue),
-    Vertex({1.0f, 0.0f, 1.0f}, {0, 0, 1}, {texX5, texY1}, lightValue),
+    Vertex(vec3(1.0f, 1.0f, 1.0f), vec3(0, 0, 1), vec2(texX5, texY0), lightValue),
+    Vertex(vec3(0.0f, 1.0f, 1.0f), vec3(0, 0, 1), vec2(texX0, texY0), lightValue),
+    Vertex(vec3(0.0f, 0.0f, 1.0f), vec3(0, 0, 1), vec2(texX0, texY1), lightValue),
+    Vertex(vec3(1.0f, 1.0f, 1.0f), vec3(0, 0, 1), vec2(texX5, texY0), lightValue),
+    Vertex(vec3(0.0f, 0.0f, 1.0f), vec3(0, 0, 1), vec2(texX0, texY1), lightValue),
+    Vertex(vec3(1.0f, 0.0f, 1.0f), vec3(0, 0, 1), vec2(texX5, texY1), lightValue),
     //back
-    Vertex({0.0f, 1.0f, 0.0f}, {0, 0, -1}, {texX5, texY0}, lightValue),
-    Vertex({1.0f, 1.0f, 0.0f}, {0, 0, -1}, {texX0, texY0}, lightValue),
-    Vertex({1.0f, 0.0f, 0.0f}, {0, 0, -1}, {texX0, texY1}, lightValue),
-    Vertex({0.0f, 1.0f, 0.0f}, {0, 0, -1}, {texX5, texY0}, lightValue),
-    Vertex({1.0f, 0.0f, 0.0f}, {0, 0, -1}, {texX0, texY1}, lightValue),
-    Vertex({0.0f, 0.0f, 0.0f}, {0, 0, -1}, {texX5, texY1}, lightValue),
+    Vertex(vec3(0.0f, 1.0f, 0.0f), vec3(0, 0, -1), vec2(texX5, texY0), lightValue),
+    Vertex(vec3(1.0f, 1.0f, 0.0f), vec3(0, 0, -1), vec2(texX0, texY0), lightValue),
+    Vertex(vec3(1.0f, 0.0f, 0.0f), vec3(0, 0, -1), vec2(texX0, texY1), lightValue),
+    Vertex(vec3(0.0f, 1.0f, 0.0f), vec3(0, 0, -1), vec2(texX5, texY0), lightValue),
+    Vertex(vec3(1.0f, 0.0f, 0.0f), vec3(0, 0, -1), vec2(texX0, texY1), lightValue),
+    Vertex(vec3(0.0f, 0.0f, 0.0f), vec3(0, 0, -1), vec2(texX5, texY1), lightValue),
     //down
-    Vertex({1.0f, 0.0f, 1.0f}, {0, -1, 0}, {texX5, texY0}, lightValue),
-    Vertex({0.0f, 0.0f, 1.0f}, {0, -1, 0}, {texX0, texY0}, lightValue),
-    Vertex({0.0f, 0.0f, 0.0f}, {0, -1, 0}, {texX0, texY1}, lightValue),
-    Vertex({1.0f, 0.0f, 1.0f}, {0, -1, 0}, {texX5, texY0}, lightValue),
-    Vertex({0.0f, 0.0f, 0.0f}, {0, -1, 0}, {texX0, texY1}, lightValue),
-    Vertex({1.0f, 0.0f, 0.0f}, {0, -1, 0}, {texX5, texY1}, lightValue),
+    Vertex(vec3(1.0f, 0.0f, 1.0f), vec3(0, -1, 0), vec2(texX5, texY0), lightValue),
+    Vertex(vec3(0.0f, 0.0f, 1.0f), vec3(0, -1, 0), vec2(texX0, texY0), lightValue),
+    Vertex(vec3(0.0f, 0.0f, 0.0f), vec3(0, -1, 0), vec2(texX0, texY1), lightValue),
+    Vertex(vec3(1.0f, 0.0f, 1.0f), vec3(0, -1, 0), vec2(texX5, texY0), lightValue),
+    Vertex(vec3(0.0f, 0.0f, 0.0f), vec3(0, -1, 0), vec2(texX0, texY1), lightValue),
+    Vertex(vec3(1.0f, 0.0f, 0.0f), vec3(0, -1, 0), vec2(texX5, texY1), lightValue),
     //up
-    Vertex({1.0f, 1.0f, 0.0f}, {0, 1, 0}, {texX5, texY0}, lightValue),
-    Vertex({0.0f, 1.0f, 0.0f}, {0, 1, 0}, {texX0, texY0}, lightValue),
-    Vertex({0.0f, 1.0f, 1.0f}, {0, 1, 0}, {texX0, texY1}, lightValue),
-    Vertex({1.0f, 1.0f, 0.0f}, {0, 1, 0}, {texX5, texY0}, lightValue),
-    Vertex({0.0f, 1.0f, 1.0f}, {0, 1, 0}, {texX0, texY1}, lightValue),
-    Vertex({1.0f, 1.0f, 1.0f}, {0, 1, 0}, {texX5, texY1}, lightValue),
+    Vertex(vec3(1.0f, 1.0f, 0.0f), vec3(0, 1, 0), vec2(texX5, texY0), lightValue),
+    Vertex(vec3(0.0f, 1.0f, 0.0f), vec3(0, 1, 0), vec2(texX0, texY0), lightValue),
+    Vertex(vec3(0.0f, 1.0f, 1.0f), vec3(0, 1, 0), vec2(texX0, texY1), lightValue),
+    Vertex(vec3(1.0f, 1.0f, 0.0f), vec3(0, 1, 0), vec2(texX5, texY0), lightValue),
+    Vertex(vec3(0.0f, 1.0f, 1.0f), vec3(0, 1, 0), vec2(texX0, texY1), lightValue),
+    Vertex(vec3(1.0f, 1.0f, 1.0f), vec3(0, 1, 0), vec2(texX5, texY1), lightValue),
     //left
-    Vertex({0.0f, 1.0f, 1.0f}, {-1, 0, 0}, {texX5, texY0}, lightValue),
-    Vertex({0.0f, 1.0f, 0.0f}, {-1, 0, 0}, {texX0, texY0}, lightValue),
-    Vertex({0.0f, 0.0f, 0.0f}, {-1, 0, 0}, {texX0, texY1}, lightValue),
-    Vertex({0.0f, 1.0f, 1.0f}, {-1, 0, 0}, {texX5, texY0}, lightValue),
-    Vertex({0.0f, 0.0f, 0.0f}, {-1, 0, 0}, {texX0, texY1}, lightValue),
-    Vertex({0.0f, 0.0f, 1.0f}, {-1, 0, 0}, {texX5, texY1}, lightValue),
+    Vertex(vec3(0.0f, 1.0f, 1.0f), vec3(-1, 0, 0), vec2(texX5, texY0), lightValue),
+    Vertex(vec3(0.0f, 1.0f, 0.0f), vec3(-1, 0, 0), vec2(texX0, texY0), lightValue),
+    Vertex(vec3(0.0f, 0.0f, 0.0f), vec3(-1, 0, 0), vec2(texX0, texY1), lightValue),
+    Vertex(vec3(0.0f, 1.0f, 1.0f), vec3(-1, 0, 0), vec2(texX5, texY0), lightValue),
+    Vertex(vec3(0.0f, 0.0f, 0.0f), vec3(-1, 0, 0), vec2(texX0, texY1), lightValue),
+    Vertex(vec3(0.0f, 0.0f, 1.0f), vec3(-1, 0, 0), vec2(texX5, texY1), lightValue),
     //right
-    Vertex({1.0f, 1.0f, 0.0f}, {1, 0, 0}, {texX5, texY0}, lightValue),
-    Vertex({1.0f, 1.0f, 1.0f}, {1, 0, 0}, {texX0, texY0}, lightValue),
-    Vertex({1.0f, 0.0f, 1.0f}, {1, 0, 0}, {texX0, texY1}, lightValue),
-    Vertex({1.0f, 1.0f, 0.0f}, {1, 0, 0}, {texX5, texY0}, lightValue),
-    Vertex({1.0f, 0.0f, 1.0f}, {1, 0, 0}, {texX0, texY1}, lightValue),
-    Vertex({1.0f, 0.0f, 0.0f}, {1, 0, 0}, {texX5, texY1}, lightValue)};
+    Vertex(vec3(1.0f, 1.0f, 0.0f), vec3(1, 0, 0), vec2(texX5, texY0), lightValue),
+    Vertex(vec3(1.0f, 1.0f, 1.0f), vec3(1, 0, 0), vec2(texX0, texY0), lightValue),
+    Vertex(vec3(1.0f, 0.0f, 1.0f), vec3(1, 0, 0), vec2(texX0, texY1), lightValue),
+    Vertex(vec3(1.0f, 1.0f, 0.0f), vec3(1, 0, 0), vec2(texX5, texY0), lightValue),
+    Vertex(vec3(1.0f, 0.0f, 1.0f), vec3(1, 0, 0), vec2(texX0, texY1), lightValue),
+    Vertex(vec3(1.0f, 0.0f, 0.0f), vec3(1, 0, 0), vec2(texX5, texY1), lightValue)};
 
 class Chunk
 {
 public:
-    Chunk(int chunkId, int detail, GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int heightmapX, int heightmapZ);
+    Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth, int x, int z);
 
-    Chunk(int chunkId, int detail, GLuint program, int chunkWidth, int chunkHeight, int chunkDepth);
+    Chunk(GLuint program, int chunkWidth, int chunkHeight, int chunkDepth, int x, int z, float heightmapWidth);
     
     ~Chunk();
 
@@ -74,9 +74,11 @@ public:
     void generateChunk();
 
     int isBlockActive(int index);
-    void setBlock(vec3 pos, int blockType);
+    int isBlockActive(vec3 blockPos);
 
-    void saveChunk();
+    bool setBlock(vec3 pos, int blockType);
+
+    void saveChunk(bool overwrite);
     void loadChunk();
 
 private: 

@@ -7,6 +7,7 @@ Player::Player()
     _direction = vec3(0.0f, 0.0f, 0.0f);
     _yVel = 0;
     _walking = false;
+    _collisionOffset = 0.2f;
 }
 
 vec3 Player::getPosition()
@@ -52,5 +53,10 @@ void Player::setYVel(float velocity)
 float Player::getYVel()
 {
     return _yVel;
+}
+
+float Player::getCollisionOffset()
+{
+    return _collisionOffset;
 }
 

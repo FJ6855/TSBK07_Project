@@ -5,7 +5,9 @@ UserInterface::UserInterface(Logic* logic)
 {
     _logic = logic;
 
-    _movementSpeed = 0.01f;
+    _movementSpeed = 0.1f;
+
+    _activeBlockType = 1;
 }
 
 UserInterface::~UserInterface()
@@ -57,10 +59,25 @@ void UserInterface::update()
 	_logic->setFreeCam(false);
     }
 
-    if(glutMouseIsDown(1))
+    if (keyIsDown('1'))
     {
-    	_logic->removeBlock(_logic->getPlayer()->getPosition());
+	_activeBlockType = 1;
+    }
+    else if (keyIsDown('2'))
+    {	
+	_activeBlockType = 2;
+    }
+
+    if (glutMouseIsDown(3) && !_mouseDown)
+    {
+    	_logic->changeBlock(0);
     } 
+    else if (glutMouseIsDown(1) && !_mouseDown)
+    {
+    	_logic->changeBlock(_activeBlockType);
+    }
+
+    _mouseDown = (glutMouseIsDown(1) || glutMouseIsDown(3));
 
     //if(glutMouseIsDown(1))
     //{ 

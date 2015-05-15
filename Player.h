@@ -22,12 +22,15 @@ public:
     float getYVel();
 
     void jump();
+
+    float getCollisionOffset();
     
 private:
     vec3 _position;
     vec3 _direction;
     float _yVel;
     bool _walking;
+    float _collisionOffset;
 };
 
 #endif

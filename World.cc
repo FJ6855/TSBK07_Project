@@ -7,20 +7,20 @@
 #include <math.h>
 #include <map>
 
-TextureData _heightmap;
+TextureData heightmap;
 
 World::World(GLuint program, vec3 playerPosition)
 {     
     _lastPlayerPosition = playerPosition;
 
-    chunks = new HashTable((VIEW_DISTANCE * 2) * (VIEW_DISTANCE * 2));
+    chunks = new HashTable((VIEW_DISTANCE * 2 + 1) * (VIEW_DISTANCE * 2 + 1));
+    createdChunks = new HashTable(2048 * 2048);
 
     _nextChunkId = 0;
 
     _program = program;
 
-    srand(time(NULL));
-    _generateWorld(program);
+    _generateWorld();
 }
 
 World::~World()
@@ -37,74 +37,57 @@ Chunk* World::getChunkAtPosition(vec3 position)
     return chunks->getChunk(vec3(x, 0, z));
 }
 
+bool World::isBlockActive(vec3 pos)
+{	
+    Chunk* c = getChunkAtPosition(pos);
+    
+    if (c != NULL)
+    {
+	vec3 blockPos = VectorSub(pos, c->getPos());
+	
+	blockPos.x = (int)blockPos.x;
+	blockPos.y = (int)blockPos.y;
+	blockPos.z = (int)blockPos.z;
+
+	return c->isBlockActive(blockPos);
+    }
+    
+    return false;
+}
+
 void World::update()
 { 
-    //printf("update world\n");
-  
     int i = 0;
 
-    for (i = 0; i < _updateList.size() & i < 2; i++)
+    for (i = 0; i < _updateList.size() && i < 2; i++)
     {
 	Chunk* c = _updateList.at(_updateList.size() - 1 - i);
 
 	c->generateChunk();
 	
-	//chunks->remove(c->getPos());
+	// check if the chunk has been saved before, if so overwrite
+	// if not we save at the end of the file and add it to the table of saved chunks
+	if (createdChunks->get(c->getPos()) != NULL)
+	{
+	    // owerwrite
+	    c->saveChunk(true);
+	}
+	else
+	{
+	    createdChunks->put(c->getPos(), NULL);
+
+	    c->saveChunk(false);
+	}
     }
 
     for (int j = 0; j < i; j++)
     {
 	_updateList.pop_back();
     }
-
-    // printf("update world done!\n");
-}
-
-void World::removeBlock(vec3 pos, vec3 direction)
-{
-    vec3 blockPos = VectorAdd(pos, direction);
-
-    int chunkX = blockPos.x - (int)blockPos.x % CHUNK_WIDTH;
-    int chunkZ = blockPos.z - (int)blockPos.z % CHUNK_DEPTH;
-
-    Chunk* c = chunks->getChunk(vec3(chunkX, 0, chunkZ));
-   
-    if(c != NULL)
-    {
-	
-	if(c->isBlockActive((int)blockPos.z % CHUNK_DEPTH + 
-			    ((int)blockPos.x % CHUNK_WIDTH) * CHUNK_DEPTH + 
-			    ((int)blockPos.y % CHUNK_HEIGHT) * CHUNK_DEPTH * CHUNK_WIDTH))
-	{
-	    
-	    c->setBlock(vec3((int)blockPos.x % CHUNK_WIDTH, (int)blockPos.y % CHUNK_HEIGHT, (int)blockPos.z % CHUNK_DEPTH), 0);
-	    _updateList.push_back(c);
-	}
-	else
-	{
-	   
-	    blockPos = VectorAdd(blockPos, direction);
-	    int chunkX = blockPos.x - (int)blockPos.x % CHUNK_WIDTH;
-	    int chunkZ = blockPos.z - (int)blockPos.z % CHUNK_DEPTH;
-	    
-	    Chunk* c = chunks->getChunk(vec3(chunkX, 0, chunkZ));
-
-	    if(c != NULL)
-	    {
-		c->setBlock(vec3((int)blockPos.x % CHUNK_WIDTH, (int)blockPos.y % CHUNK_HEIGHT, (int)blockPos.z % CHUNK_DEPTH), 0);
-		_updateList.push_back(c);
-	    }
-
-	}
-	
-    }
-    
 }
     
 void World::loadChunks(vec3 playerPosition)
 {
-    //printf("load chunks\n");
-
     int newX = ((int)playerPosition.x - (int)playerPosition.x % CHUNK_WIDTH);
     int oldX = ((int)_lastPlayerPosition.x - (int)_lastPlayerPosition.x % CHUNK_WIDTH);
     
@@ -150,8 +133,6 @@ void World::loadChunks(vec3 playerPosition)
     }
 
     _lastPlayerPosition = playerPosition;
-
-    //printf("table size: %i\n", chunks->getTableSize());
 }
 
 void World::updateRenderList(Frustum* frustum, vec3 playerPosition)
@@ -216,31 +197,50 @@ void World::updateRenderList(Frustum* frustum, vec3 playerPosition)
     }
 
     renderList.push_back(vec3(playerPosX, 0, playerPosZ));
-    renderList.push_back(vec3(farLeftChunkX, 0, farLeftChunkZ));
-    renderList.push_back(vec3(farRightChunkX, 0, farRightChunkZ));
-    renderList.push_back(vec3(nearLeftChunkX, 0, nearLeftChunkZ));
-    renderList.push_back(vec3(nearRightChunkX, 0, nearRightChunkZ));
 }
 
-void World::_generateWorld(GLuint program)
+void World::changeBlock(vec3 pos, vec3 direction, int blockType)
 {
-    LoadTGATextureData("test2.tga", &_heightmap);
-    
-    float x1 = rand() % 5 + 1;
-    float x2 = rand() % 5 + 1;
-    float z1 = rand() % 4 + 1 ;
+    vec3 blockPos = VectorAdd(pos, direction);
 
-    x1 /= 10;
-    x2 /= 10;
-    z1 = 0.01;
+    Chunk* c = getChunkAtPosition(blockPos); 
 
-    for(int x = 0; x <_heightmap.width; x++)
+    if (c != NULL)
     {
-	for(int z = 0; z < _heightmap.height; z++)
+	blockPos.x = (int)blockPos.x % CHUNK_WIDTH;
+	blockPos.y = (int)blockPos.y % CHUNK_HEIGHT;
+	blockPos.z = (int)blockPos.z % CHUNK_DEPTH;
+
+	if (c->setBlock(blockPos, blockType))
 	{
-	    _heightmap.imageData[(x + z * _heightmap.width) * (_heightmap.bpp / 8)] = scaled_octave_noise_2d(x1, x2, z1, 0.0, 15.0, x, z);
+	    _updateList.push_back(c);
+	}
+	else
+	{
+	    blockPos = VectorAdd(pos, ScalarMult(direction, 2.0f));
+	    
+	    Chunk* c = getChunkAtPosition(blockPos);
+	    
+	    if (c != NULL)
+	    {
+		blockPos.x = (int)blockPos.x % CHUNK_WIDTH;
+		blockPos.y = (int)blockPos.y % CHUNK_HEIGHT;
+		blockPos.z = (int)blockPos.z % CHUNK_DEPTH;
+		
+		if (c->setBlock(blockPos, blockType))
+		    _updateList.push_back(c);		    
+	    }
 	}
     }
+}
+
+void World::_generateWorld()
+{
+    std::fstream chunksFile;
+    chunksFile.open("chunks.txt", std::fstream::out | std::fstream::trunc);
+    chunksFile.close();
+    
+    _generateHeightmap();
     
     for (int z = _lastPlayerPosition.z / CHUNK_DEPTH - VIEW_DISTANCE; z < _lastPlayerPosition.z / CHUNK_DEPTH + VIEW_DISTANCE; z++)
     {
@@ -248,24 +248,62 @@ void World::_generateWorld(GLuint program)
 	{
 	    _createChunk(1, x * CHUNK_WIDTH, z * CHUNK_DEPTH);
 	} 
-    } 
+    }
+}
 
-    //printf("table size: %i\n", chunks->getTableSize());
-    //chunks->printTable();
+void World::_generateHeightmap()
+{
+    LoadTGATextureData("test2.tga", &heightmap);
+
+    srand(time(NULL));
+    
+    float x1 = rand() % 5 + 1;
+    float x2 = rand() % 5 + 1;
+    float z1 = rand() % 4 + 1 ;
+
+    x1 /= 10;
+    x2 /= 10;
+    z1 /= 50;
+
+    for(int x = 0; x < heightmap.width; x++)
+    {
+	for(int z = 0; z < heightmap.height; z++)
+	{
+	    heightmap.imageData[(x + z * heightmap.width) * (heightmap.bpp / 8)] = scaled_octave_noise_2d(x1, x2, z1, 0.0, 15.0, x, z);
+	}
+    }
 }
 
 void World::_createChunk(int detail, int x, int z)
 {
-    if (x >= 0 && z >= 0 && !chunks->chunkExistsAt(vec3(x, 0, z)))
+    if (x >= 0 && z >= 0 && x < heightmap.width && z <= heightmap.height)
     {
-	Chunk* c = new Chunk(_nextChunkId, detail, _program, &_heightmap, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_DEPTH, x, z);
-	c->setPos(vec3(x, 0, z));
+	if (createdChunks->get(vec3(x, 0, z)) != NULL)
+	{
+	    _loadChunk(1, x, z);
+	}
+	else if(!chunks->chunkExistsAt(vec3(x, 0, z)))
+	{
+	    Chunk* c = new Chunk(_program, &heightmap, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_DEPTH, x, z);
+
+	    chunks->put(c->getPos(), c);
+	    
+	    _updateList.push_back(c);
+	}
+    }
+}
+
+void World::_loadChunk(int detail, int x, int z)
+{
+    if (x >= 0 && z >= 0)
+    {
+	Chunk* c = new Chunk(_program, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_DEPTH, x, z, heightmap.width);
 	
+	c->loadChunk();
+
 	chunks->put(c->getPos(), c);
 	
 	_updateList.push_back(c);
-	
-	_nextChunkId++;
     }
 }
 
