@@ -318,6 +318,8 @@ int Chunk::isBlockActive(int index)
 {
     if (index >= 0 && index < _activeBlocks.size())
 	return _activeBlocks.at(index);
+    else
+	return 0;
 }
 
 int Chunk::isBlockActive(vec3 blockPos)
@@ -326,6 +328,8 @@ int Chunk::isBlockActive(vec3 blockPos)
 
     if (index >= 0 && index < _activeBlocks.size())
 	return _activeBlocks.at(index);
+    else
+	return 0;
 }
 
 bool Chunk::setBlock(vec3 pos, int blockType)
