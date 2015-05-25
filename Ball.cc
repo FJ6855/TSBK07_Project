@@ -9,14 +9,8 @@ Ball::Ball()
 }
 Ball::Ball(vec3 pos, vec3 lookAt)
 {
-    _direction = Normalize(lookAt);
-    
-    lookAt = Normalize(VectorSub(lookAt, pos));
-    
-    _position.x = pos.x + lookAt.x;
-    _position.y = pos.y + 1.0f;
-    _position.z = pos.z + lookAt.z;
-
+    _position = pos + lookAt * 0.5;
+    _direction = lookAt * 2;
 }
 
 vec3 Ball::getPosition()

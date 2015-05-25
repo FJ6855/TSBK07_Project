@@ -70,19 +70,19 @@ void UserInterface::update()
 
     if (glutMouseIsDown(3) && !_mouseDown)
     {
-    	_logic->changeBlock(0);
+    	//_logic->changeBlock(0);
     } 
     else if (glutMouseIsDown(1) && !_mouseDown)
     {
-    	_logic->changeBlock(_activeBlockType);
+    	//_logic->changeBlock(_activeBlockType);
+    }
+
+    if (glutMouseIsDown(1) && !_mouseDown)
+    { 
+	_logic->shootBall();
     }
 
     _mouseDown = (glutMouseIsDown(1) || glutMouseIsDown(3));
-
-    //if(glutMouseIsDown(1))
-    //{ 
-    //_logic->shootBall();
-    //}
 }
 
 void UserInterface::moveMouse(int mouseX, int mouseY, int windowWidth, int windowHeight)

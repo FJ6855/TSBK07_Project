@@ -78,6 +78,8 @@ public:
 
     bool setBlock(vec3 pos, int blockType);
 
+    bool checkCollision(vec3 pos, float radius);
+
     void saveChunk(bool overwrite);
     void loadChunk();
 

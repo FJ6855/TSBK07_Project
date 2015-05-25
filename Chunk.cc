@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
+#include <math.h>
 
 Chunk::Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int x, int z)
 {   
@@ -360,6 +361,47 @@ bool Chunk::setBlock(vec3 pos, int blockType)
     {
 	return false;
     }
+}
+
+bool Chunk::checkCollision(vec3 pos, float radius)
+{
+    for (int y = 0; y < _chunkHeight; y++)
+    {
+	for (int x = 0; x < _chunkWidth; x++)
+	{
+	    for (int z = 0; z < _chunkDepth; z++)
+	    {		
+		if (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth) != 0)
+		{
+		    vec3 min = vec3(x + _pos.x, y + _pos.y, z + _pos.z);
+
+		    vec3 max = vec3(min.x + 1, min.y + 1, min.z + 1);
+
+		    float distSquared = 0;
+
+		    if (pos.x < min.x) 
+			distSquared += pow(pos.x - min.x, 2);
+		    else if (pos.x > max.x) 
+			distSquared += pow(pos.x - max.x, 2);
+
+		    if (pos.y < min.y) 
+			distSquared += pow(pos.y - min.y, 2);
+		    else if (pos.y > max.y) 
+			distSquared += pow(pos.y - max.y, 2);
+		    
+		    if (pos.z < min.z) 
+			distSquared += pow(pos.z - min.z, 2);
+		    else if (pos.z > max.z) 
+			distSquared += pow(pos.z - max.z, 2);
+
+		    if (distSquared <= radius * radius)
+			return true;
+		}
+	    }
+	}
+    }
+
+    return false;
 }
 
 void Chunk::saveChunk(bool overwrite)

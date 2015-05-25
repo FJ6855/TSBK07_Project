@@ -63,8 +63,7 @@ private:
     Player* _player;
 
     Frustum* _frustum;
-
-    Ball* _balls[15];
+    Ball* _balls[20];
 
     int _ballIndex;
 
@@ -74,7 +73,8 @@ private:
     void _physics();
 
     void _ballMovement();
-    vec3 _ballCollision(vec3 pos, vec3 amount);
+    void _ballCollision(vec3 oldPos, vec3& newPos, vec3& newDir);
+    bool _ballToBallCollision(vec3 pos1, vec3 pos2, vec3& dir1, vec3& dir2);
 };
 
 #endif

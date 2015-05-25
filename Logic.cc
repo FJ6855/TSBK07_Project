@@ -26,7 +26,7 @@ Logic::Logic()
 
     _ballIndex = 0;
 
-    for(int i = 0; i < 15; i++)
+    for(int i = 0; i < 20; i++)
     {
 	_balls[i] = NULL;
     }
@@ -266,13 +266,12 @@ vec3 Logic::_collision(vec3 oldPos, vec3 newPos)
 
 void Logic::shootBall()
 {
-    Ball* b = new Ball{getPlayer()->getPosition(), getCameraLookAt()};
+    Ball* b = new Ball(_cameraPos, Normalize(_cameraLookAt - _cameraPos));
 
-    if(_ballIndex > 14)
+    if(_ballIndex > 19)
     {	
 	_ballIndex = 0;
     }
-    printf("ballIndex %i\n", _ballIndex);
     
     if(_balls[_ballIndex] != NULL)
     {
@@ -287,23 +286,108 @@ void Logic::shootBall()
 }
 void Logic::_ballMovement()
 {
-    for(int i = 0; i < 15; i++)
+    for(int i = 0; i < 20; i++)
     {
 	Ball* b = _balls[i];
-	if(_balls[i] != NULL)
+	
+ 	if(_balls[i] != NULL)
 	{
-	    vec3 newPos =  _ballCollision(b->getPosition(), VectorAdd(b->getPosition(), b->getDirection()));
-	    b->setPosition(newPos);
+	    vec3 tmpDir = b->getDirection();
+	    tmpDir.y -= 0.05f;
+	    tmpDir.x *= 0.99;
+	    tmpDir.z *= 0.99;
+	    b->setDirection(tmpDir);
 
-	    printf("%f. %f. %f. \n,",b->getDirection().x, b->getDirection().y, b->getDirection().z);
+	    vec3 newPos = b->getPosition() + b->getDirection() * 0.1f;
+	    vec3 newDir = b->getDirection();
+
+	    _ballCollision(b->getPosition(), newPos, newDir);
+	    
+	    b->setPosition(newPos);
+	    b->setDirection(newDir);
+
+	    for (int j = 0; j < 20; j++)
+	    {
+		Ball* b2 = _balls[j];
+
+		if (b2 != NULL)
+		{
+		    vec3 dir1 = b->getDirection();
+		    vec3 dir2 = b2->getDirection();
+		
+		    if (i != j && _ballToBallCollision(b->getPosition(), b2->getPosition(), dir1, dir2))
+		    {
+			b->setDirection(dir1);
+			b2->setDirection(dir2);
+		    }	
+		}
+	    }
 	}
     }
 }
-vec3 Logic::_ballCollision(vec3 pos, vec3 amount)
-{
-    //collision
 
-    
+void Logic::_ballCollision(vec3 oldPos, vec3& newPos, vec3& newDir)
+{
+    Chunk* c = _world->getChunkAtPosition(newPos);
+   
+    if (c != NULL)
+    {
+	vec3 tmpNewPos = oldPos;
+
+	tmpNewPos.y = newPos.y;
+
+	if (c->checkCollision(tmpNewPos, 0.2f))
+	{
+	    newPos.y = oldPos.y;
+	    
+	    newDir.y = -newDir.y / 2.0f;
+
+	}
+
+	tmpNewPos = oldPos;
+
+	tmpNewPos.x = newPos.x;
+
+	if (c->checkCollision(tmpNewPos, 0.2f))
+	{
+	    newPos.x = oldPos.x;
+
+	    newDir.x = -newDir.x;
+	}
+
+	tmpNewPos = oldPos;
+
+	tmpNewPos.z = newPos.z;
+
+	if (c->checkCollision(tmpNewPos, 0.2f))
+	{
+	    newPos.z = oldPos.z;
+
+	    newDir.z = -newDir.z;
+	}
+    }
+}
+
+bool Logic::_ballToBallCollision(vec3 pos1, vec3 pos2, vec3& dir1, vec3& dir2)
+{
+    vec3 v = pos1 - pos2;
+
+    float distSquared = DotProduct(v, v);
+
+    float radiusSumSquared = pow(0.2f + 0.2f, 2);
+
+    if (distSquared <= radiusSumSquared)
+    {
+	vec3 tmpDir = dir1;
+
+	dir1 = dir2;
+
+	dir2 = tmpDir;
+
+	return true;
+    }
+
+    return false;
 }
 
 void Logic::setFreeCam(bool value)
