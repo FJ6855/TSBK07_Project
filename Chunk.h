@@ -79,7 +79,8 @@ public:
 
     bool setBlock(vec3 pos, int blockType);
 
-    bool checkCollision(vec3 min, vec3 max);
+    bool checkCollision(vec3 pos, vec3 min, vec3 max);
+    bool checkCollision(vec3 pos, float radius);
 
     void saveChunk(std::fstream& file, bool overwrite);
     void loadChunk(std::fstream& file);

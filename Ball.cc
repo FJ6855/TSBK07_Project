@@ -3,15 +3,14 @@
 
 Ball::Ball()
 {
-    _position = { 0.0f, 0.0f, 0.0f };
+    _position = vec3(0.0f, 0.0f, 0.0f);
 
-    _direction = { 0.0f, 0.0f, 0.0f };
+    _direction = vec3(0.0f, 0.0f, 0.0f);
 }
-Ball::Ball(vec3 pos, vec3 direction, vec3 speed)
+Ball::Ball(vec3 pos, vec3 direction)
 {
-    _position = pos;
-    _direction = direction;
-    _speed = speed;
+    _position = pos + direction * 0.5;
+    _direction = direction * 2;
 }
 
 vec3 Ball::getPosition()

@@ -9,6 +9,8 @@ UserInterface::UserInterface(Logic* logic)
 
     _activeBlockType = 1;
 
+    _blockMode = true;
+
     _mouseDown = false;
     _keyDown = false;
 }
@@ -54,8 +56,12 @@ void UserInterface::update()
 	if(_logic->getPlayer()->isWalking())
 	    _logic->getPlayer()->jump();
     }
+    else if (keyIsDown('e') && !_keyDown)
+    {
+	_blockMode = !_blockMode;
+    }
 
-    _keyDown = keyIsDown(' ');
+    _keyDown = keyIsDown(' ') || keyIsDown('e');
 
     if (keyIsDown('f'))
     {
@@ -75,17 +81,26 @@ void UserInterface::update()
 	_activeBlockType = 2;
     }
 
-    if (glutMouseIsDown(3) && !_mouseDown)
+    if (_blockMode)
     {
-    	_logic->changeBlock(0);
-    } 
-    else if (glutMouseIsDown(1) && !_mouseDown)
+	if (glutMouseIsDown(3) && !_mouseDown)
+	{
+	    _logic->changeBlock(0);
+	} 
+	else if (glutMouseIsDown(1) && !_mouseDown)
+	{
+	    _logic->changeBlock(_activeBlockType);
+	}
+    }
+    else
     {
-    	_logic->changeBlock(_activeBlockType);
+	if (glutMouseIsDown(1) && !_mouseDown)
+	{ 
+	    _logic->shootBall();
+	}
     }
 
     _mouseDown = (glutMouseIsDown(1) || glutMouseIsDown(3));
-
 }
 
 void UserInterface::moveMouse(int mouseX, int mouseY, int windowWidth, int windowHeight)

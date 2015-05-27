@@ -7,3 +7,5 @@
 .\#*
 # ignore game
 game
+# ignore chunks.txt
+chunks.txt

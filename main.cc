@@ -82,7 +82,7 @@ void run()
 	frame = 0;
     }
 
-    //printf("fps: %f\n", fps);
+    // printf("fps: %f\n", fps);
 }
 
 void mouseMovement(int x, int y)

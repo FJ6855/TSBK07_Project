@@ -8,16 +8,13 @@ class Ball
 {
 public:
     Ball();
-    Ball(vec3 pos, vec3 direction, vec3 speed);
+    Ball(vec3 pos, vec3 direction);
 
     vec3 getPosition();
     void setPosition(vec3 position);
 
     vec3 getDirection();
     void setDirection(vec3 direction);
-
-    vec3 getSpeed() { return _speed; }
-    void setSpeed(vec3 speed) { _speed = speed; }
 
 private:
     vec3 _position;

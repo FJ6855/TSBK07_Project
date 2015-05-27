@@ -40,11 +40,15 @@ public:
 
     Player* getPlayer();
 
+    Ball* getBall(int index);
+
     void createWorld(GLuint program);
 
     void setFreeCam(bool value);
 
     void changeBlock(int blockType);
+
+    void shootBall();
   
 private:
     bool _freeCam;
@@ -64,13 +68,23 @@ private:
 
     Frustum* _frustum;
 
+    Ball* _balls[100];
+
+    int _ballIndex;
+
     void _updateFrustum();
 
-    vec3 _collision(vec3 oldPos, vec3 newPos);
+    void _collision(vec3 oldPos, vec3& newPos);
 
     void _physics();
 
     void _updateTargetPosition();
+
+    void _ballMovement();
+    void _ballCollision(vec3 oldPos, vec3& newPos, vec3& newDir);
+    bool _ballToBallCollision(vec3 pos1, vec3 pos2, vec3& dir1, vec3& dir2);
+    
+    void _getChunksAroundChunk(vec3 pos, vec3 direciton, Chunk* chunks[4]);
 };
 
 #endif

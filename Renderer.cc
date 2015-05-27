@@ -172,6 +172,24 @@ void Renderer::render()
     //printf("render chunk count: %i\n", chunkCount);
     //printf("render count: %i\n", loopCount);
 
+    //balls
+    glUseProgram(_ballShader);
+
+    glUniform3fv(glGetUniformLocation(_ballShader, "cameraPos"), 1, &_logic->getCameraPos().x);
+ 
+    glUniformMatrix4fv(glGetUniformLocation(_ballShader, "viewMatrix"), 1, GL_TRUE, _viewMatrix.m);
+    for(int i = 0; i < 100; i++)
+    {
+	if(_logic->getBall(i) != NULL)
+	{
+	    _modelMatrix = T(_logic->getBall(i)->getPosition().x, _logic->getBall(i)->getPosition().y, _logic->getBall(i)->getPosition().z);
+
+	    glUniformMatrix4fv(glGetUniformLocation(_ballShader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
+    
+	    DrawModel(_ballModel, _ballShader, "inPosition", "inNormal", NULL);   
+	}
+    }
+
     // cube for targeting
     glUseProgram(_plainShader);
 
@@ -182,14 +200,12 @@ void Renderer::render()
     if (_logic->getRenderTarget())
     {    
 	_modelMatrix = Mult(T(_logic->getTargetPosition().x,  _logic->getTargetPosition().y, _logic->getTargetPosition().z), S(1.005f, 1.001f, 1.001f));
-	
+		
 	glUniformMatrix4fv(glGetUniformLocation(_plainShader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
 	
 	glBindVertexArray(_cubeVao);
 
 	glDrawArrays(GL_LINES, 0, 24);
-
-	//DrawWireframeModel(_cubeModel, _plainShader, "inPosition", NULL, NULL);
     }
 
     glutSwapBuffers();

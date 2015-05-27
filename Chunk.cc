@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
+#include <math.h>
 
 Chunk::Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHeight, int chunkDepth,  int x, int z)
 {   
@@ -363,17 +364,36 @@ bool Chunk::setBlock(vec3 pos, int blockType)
     }
 }
 
-bool Chunk::checkCollision(vec3 min, vec3 max)
+bool Chunk::checkCollision(vec3 pos, vec3 min, vec3 max)
 {
-    for (int y = 0; y < _chunkHeight; y++)
+    vec3 relativePos = pos - _pos;
+
+    relativePos.x = floor(relativePos.x);
+    relativePos.y = floor(relativePos.y);
+    relativePos.z = floor(relativePos.z);
+    
+    if (relativePos.x < 1.0)
+	relativePos.x = 1.0;
+    else if (relativePos.x > 14.0)
+	relativePos.x = 14.0;
+    
+    if (relativePos.y < 1.0)
+	relativePos.y = 1.0;
+    else if (relativePos.y > 14.0)
+	relativePos.y = 14.0;
+
+    if (relativePos.z < 1.0)
+	relativePos.z = 1.0;
+    else if (relativePos.z > 14.0)
+	relativePos.z = 14.0;
+
+    for (int y = relativePos.y - 1; y <= relativePos.y + 1; y++)
     {
-	for (int x = 0; x < _chunkWidth; x++)
+	for (int x = relativePos.x - 1; x <= relativePos.x + 1; x++)
 	{
-	    for (int z = 0; z < _chunkDepth; z++)
+	    for (int z = relativePos.z - 1; z <= relativePos.z + 1; z++)
 	    {		
-		int index = z + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
-		
-		if (_activeBlocks.at(index))
+		if (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth))
 		{
 		    vec3 bMin = vec3(x + _pos.x, y + _pos.y, z + _pos.z);
 		    vec3 bMax = vec3(bMin.x + 1, bMin.y + 1, bMin.z + 1);
@@ -388,17 +408,68 @@ bool Chunk::checkCollision(vec3 min, vec3 max)
 	    }
 	}
     }	
-
-    return false;
 }
 
-char rotate(char s, int shifts)
+bool Chunk::checkCollision(vec3 pos, float radius)
 {
-    char t = s << 8 - shifts;
+    vec3 relativeBallPos = pos - _pos;
 
-    s = s >> shifts;
+    relativeBallPos.x = floor(relativeBallPos.x);
+    relativeBallPos.y = floor(relativeBallPos.y);
+    relativeBallPos.z = floor(relativeBallPos.z);
+    
+    if (relativeBallPos.x < 1.0)
+	relativeBallPos.x = 1.0;
+    else if (relativeBallPos.x > 14.0)
+	relativeBallPos.x = 14.0;
+    
+    if (relativeBallPos.y < 1.0)
+	relativeBallPos.y = 1.0;
+    else if (relativeBallPos.y > 14.0)
+	relativeBallPos.y = 14.0;
 
-    return s | t;
+    if (relativeBallPos.z < 1.0)
+	relativeBallPos.z = 1.0;
+    else if (relativeBallPos.z > 14.0)
+	relativeBallPos.z = 14.0;
+
+    for (int y = relativeBallPos.y - 1; y <= relativeBallPos.y + 1; y++)
+    {
+	for (int x = relativeBallPos.x - 1 ; x <= relativeBallPos.x + 1; x++)
+	{
+	    for (int z = relativeBallPos.z - 1 ; z <= relativeBallPos.z + 1; z++)
+	    {		
+		if (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth))
+		{
+		    vec3 min = vec3(x + _pos.x, y + _pos.y, z + _pos.z);
+
+		    vec3 max = vec3(min.x + 1, min.y + 1, min.z + 1);
+
+		    float distSquared = 0;
+
+		    if (pos.x < min.x) 
+			distSquared += pow(pos.x - min.x, 2);
+		    else if (pos.x > max.x) 
+			distSquared += pow(pos.x - max.x, 2);
+
+		    if (pos.y < min.y) 
+			distSquared += pow(pos.y - min.y, 2);
+		    else if (pos.y > max.y) 
+			distSquared += pow(pos.y - max.y, 2);
+		    
+		    if (pos.z < min.z) 
+			distSquared += pow(pos.z - min.z, 2);
+		    else if (pos.z > max.z) 
+			distSquared += pow(pos.z - max.z, 2);
+
+		    if (distSquared <= radius * radius)
+			return true;
+			}
+	    }
+	}
+    }
+
+    return false;
 }
 
 void Chunk::saveChunk(std::fstream& file, bool overwrite)

@@ -23,6 +23,8 @@ private:
     bool _keyDown;
 
     int _activeBlockType;
+
+    bool _blockMode;
 };
 
 #endif
