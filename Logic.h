@@ -63,7 +63,7 @@ private:
     Player* _player;
 
     Frustum* _frustum;
-    Ball* _balls[20];
+    Ball* _balls[100];
 
     int _ballIndex;
 

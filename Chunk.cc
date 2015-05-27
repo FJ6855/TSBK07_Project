@@ -365,13 +365,34 @@ bool Chunk::setBlock(vec3 pos, int blockType)
 
 bool Chunk::checkCollision(vec3 pos, float radius)
 {
-    for (int y = 0; y < _chunkHeight; y++)
+    vec3 relativeBallPos =  pos - _pos;
+
+    relativeBallPos.x = floor(relativeBallPos.x);
+    relativeBallPos.y = floor(relativeBallPos.y);
+    relativeBallPos.z = floor(relativeBallPos.z);
+    
+    if (relativeBallPos.x < 1.0)
+	relativeBallPos.x = 1.0;
+    else if (relativeBallPos.x > 14.0)
+	relativeBallPos.x = 14.0;
+    
+    if (relativeBallPos.y < 1.0)
+	relativeBallPos.y = 1.0;
+    else if (relativeBallPos.y > 14.0)
+	relativeBallPos.y = 14.0;
+
+    if (relativeBallPos.z < 1.0)
+	relativeBallPos.z = 1.0;
+    else if (relativeBallPos.z > 14.0)
+	relativeBallPos.z = 14.0;
+
+    for (int y = (int)relativeBallPos.y - 1; y <= (int)relativeBallPos.y + 1; y++)
     {
-	for (int x = 0; x < _chunkWidth; x++)
+	for (int x =  (int)relativeBallPos.x - 1 ; x <= (int) relativeBallPos.x + 1; x++)
 	{
-	    for (int z = 0; z < _chunkDepth; z++)
+	    for (int z =  (int)relativeBallPos.z - 1 ; z <= (int)relativeBallPos.z + 1; z++)
 	    {		
-		if (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth) != 0)
+			if (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth) != 0)
 		{
 		    vec3 min = vec3(x + _pos.x, y + _pos.y, z + _pos.z);
 
@@ -396,7 +417,7 @@ bool Chunk::checkCollision(vec3 pos, float radius)
 
 		    if (distSquared <= radius * radius)
 			return true;
-		}
+			}
 	    }
 	}
     }

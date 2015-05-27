@@ -164,7 +164,7 @@ void Renderer::render()
     glUniform3fv(glGetUniformLocation(_ballShader, "cameraPos"), 1, &_logic->getCameraPos().x);
  
     glUniformMatrix4fv(glGetUniformLocation(_ballShader, "viewMatrix"), 1, GL_TRUE, _viewMatrix.m);
-    for(int i = 0; i < 20; i++)
+    for(int i = 0; i < 100; i++)
     {
 	if(_logic->getBall(i) != NULL)
 	{

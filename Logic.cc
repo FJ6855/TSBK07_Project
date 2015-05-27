@@ -26,7 +26,7 @@ Logic::Logic()
 
     _ballIndex = 0;
 
-    for(int i = 0; i < 20; i++)
+    for(int i = 0; i < 100; i++)
     {
 	_balls[i] = NULL;
     }
@@ -268,7 +268,7 @@ void Logic::shootBall()
 {
     Ball* b = new Ball(_cameraPos, Normalize(_cameraLookAt - _cameraPos));
 
-    if(_ballIndex > 19)
+    if(_ballIndex > 99)
     {	
 	_ballIndex = 0;
     }
@@ -286,7 +286,7 @@ void Logic::shootBall()
 }
 void Logic::_ballMovement()
 {
-    for(int i = 0; i < 20; i++)
+    for(int i = 0; i < 100; i++)
     {
 	Ball* b = _balls[i];
 	
@@ -306,7 +306,7 @@ void Logic::_ballMovement()
 	    b->setPosition(newPos);
 	    b->setDirection(newDir);
 
-	    for (int j = 0; j < 20; j++)
+	    for (int j = i; j < 100; j++)
 	    {
 		Ball* b2 = _balls[j];
 
@@ -328,44 +328,127 @@ void Logic::_ballMovement()
 
 void Logic::_ballCollision(vec3 oldPos, vec3& newPos, vec3& newDir)
 {
-    Chunk* c = _world->getChunkAtPosition(newPos);
-   
-    if (c != NULL)
+    Chunk* c[4];
+    c[0]= _world->getChunkAtPosition(newPos);
+    c[1] = NULL;
+    c[2] = NULL;
+    c[3] = NULL;
+    
+    if(newPos.x >= 0 && newPos.x <= 2048 && newPos.z >= 0 && newPos.z <= 2048)
     {
-	vec3 tmpNewPos = oldPos;
+	vec3 relativeBallPos =  newPos - c[0]->getPos();
 
-	tmpNewPos.y = newPos.y;
+	relativeBallPos.x = floor(relativeBallPos.x);
+	relativeBallPos.y = floor(relativeBallPos.y);
+	relativeBallPos.z = floor(relativeBallPos.z);
+    
+	vec3 tmp = newPos;
 
-	if (c->checkCollision(tmpNewPos, 0.2f))
+	if (relativeBallPos.x < 1 && newPos.x > 16.0) // if ball overlaps chunk in x
 	{
-	    newPos.y = oldPos.y;
+	    tmp.x -= 16.0;
+
+	    c[1] = _world->getChunkAtPosition(tmp);
+
+	    tmp = newPos;
+	}
+	else if (relativeBallPos.x > 14 && newPos.x < 2032)
+	{
+	    tmp.x += 16.0;
+
+	    c[1] = _world->getChunkAtPosition(tmp);
+
+	    tmp = newPos;
+	}   
+
+	if (relativeBallPos.z < 1  && newPos.z > 16.0) // if ball overlaps chunk in z
+	{
+	    tmp.z -= 16.0;
+
+	    c[2] = _world->getChunkAtPosition(tmp);
+
+	    tmp = newPos;
+	}
+	else if (relativeBallPos.z > 14 && newPos.z < 2032)
+	{	
+	    tmp.z += 16.0;
+
+	    c[2] = _world->getChunkAtPosition(tmp);
+
+	    tmp = newPos;
+	}
+
+	if(c[1] != NULL && c[2] != NULL) // diagonal chunk if both z and x overlaps other chunks
+	{
+	    if (c[1]->getPos().x < newPos.x && c[2]->getPos().z < newPos.z)
+		{
+		    tmp.x -= 16;
+		    tmp.z -= 16;
+	 
+		    c[3] = _world->getChunkAtPosition(tmp);
+		}
+		else if(c[1]->getPos().x > newPos.x && c[2]->getPos().z < newPos.z)
+		{
+		    tmp.x += 16;
+		    tmp.z -= 16;
+	 
+		    c[3] = _world->getChunkAtPosition(tmp);
+		}
+		else if(c[1]->getPos().x < newPos.x && c[2]->getPos().z > newPos.z)
+		{
+		    tmp.x -= 16;
+		    tmp.z += 16;
+	 
+		    c[3] = _world->getChunkAtPosition(tmp);
+		}
+		else
+		{
+		    tmp.x += 16;
+		    tmp.z += 16;
+	 
+		    c[3] = _world->getChunkAtPosition(tmp);
+		}
+		}
+
+	    for(int  i = 0; i < 4; ++i)
+	    {
+		if (c[i] != NULL)
+		{
+		    vec3 tmpNewPos = oldPos;
+
+		    tmpNewPos.y = newPos.y;
+
+		    if (c[i]->checkCollision(tmpNewPos, 0.2f))
+		    {
+			newPos.y = oldPos.y;
 	    
-	    newDir.y = -newDir.y / 2.0f;
+			newDir.y = -newDir.y / 2.0f;
+		    }
 
+		    tmpNewPos = oldPos;
+
+		    tmpNewPos.x = newPos.x;
+
+		    if (c[i]->checkCollision(tmpNewPos, 0.2f))
+		    {
+			newPos.x = oldPos.x;
+
+			newDir.x = -newDir.x;
+		    }
+
+		    tmpNewPos = oldPos;
+
+		    tmpNewPos.z = newPos.z;
+
+		    if (c[i]->checkCollision(tmpNewPos, 0.2f))
+		    {
+			newPos.z = oldPos.z;
+
+			newDir.z = -newDir.z;
+		    }
+		}
+	    }
 	}
-
-	tmpNewPos = oldPos;
-
-	tmpNewPos.x = newPos.x;
-
-	if (c->checkCollision(tmpNewPos, 0.2f))
-	{
-	    newPos.x = oldPos.x;
-
-	    newDir.x = -newDir.x;
-	}
-
-	tmpNewPos = oldPos;
-
-	tmpNewPos.z = newPos.z;
-
-	if (c->checkCollision(tmpNewPos, 0.2f))
-	{
-	    newPos.z = oldPos.z;
-
-	    newDir.z = -newDir.z;
-	}
-    }
 }
 
 bool Logic::_ballToBallCollision(vec3 pos1, vec3 pos2, vec3& dir1, vec3& dir2)
