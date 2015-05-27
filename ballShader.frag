@@ -32,7 +32,5 @@ void main(void)
 	//ADD LIGHTS TOGETHER
 	Light = ambientLight + sunLightIntensity * sunLightDiffuse + attenuation * PointLightDiffuse * PointLightColor;
 
-	Light = Light;
-
-	outColor = 1.0 * vec4(Light, 1.0);
+	outColor = vec4(Light, 1.0);
 } 

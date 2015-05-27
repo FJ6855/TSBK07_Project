@@ -25,6 +25,8 @@ World::World(GLuint program, vec3 playerPosition)
 
 World::~World()
 {
+    chunksFile.close();
+
     delete chunks;
     chunks = NULL;
 }
@@ -70,13 +72,13 @@ void World::update()
 	if (createdChunks->get(c->getPos()) != NULL)
 	{
 	    // owerwrite
-	    c->saveChunk(true);
+	    c->saveChunk(chunksFile, true);
 	}
 	else
 	{
 	    createdChunks->put(c->getPos(), NULL);
 
-	    c->saveChunk(false);
+	    c->saveChunk(chunksFile, false);
 	}
     }
 
@@ -103,7 +105,7 @@ void World::loadChunks(vec3 playerPosition)
 	    int x = oldX - directionX * VIEW_DISTANCE * CHUNK_WIDTH;
 	    int z = oldZ - CHUNK_DEPTH * VIEW_DISTANCE + i * CHUNK_DEPTH;
 	    
-	    if (x >= 0 && z >= 0)
+	    if (x >= 0 && z >= 0 && x <= heightmap.width - CHUNK_WIDTH && z <= heightmap.height - CHUNK_DEPTH)
 		chunks->remove(vec3(x, 0, z));
 
 	    x = newX + directionX * VIEW_DISTANCE * CHUNK_WIDTH;
@@ -122,7 +124,7 @@ void World::loadChunks(vec3 playerPosition)
 	    int x = oldX - CHUNK_WIDTH * VIEW_DISTANCE + i * CHUNK_WIDTH;
 	    int z = oldZ - directionZ * VIEW_DISTANCE * CHUNK_DEPTH;
 	    
-	    if (x >= 0 && z >= 0)
+	    if (x >= 0 && z >= 0 && x <= heightmap.width - CHUNK_WIDTH && z <= heightmap.height - CHUNK_DEPTH)
 	    	chunks->remove(vec3(x, 0, z));
 
 	    x = newX - CHUNK_WIDTH * VIEW_DISTANCE + i * CHUNK_WIDTH;
@@ -137,108 +139,44 @@ void World::loadChunks(vec3 playerPosition)
 
 void World::updateRenderList(Frustum* frustum, vec3 playerPosition)
 {
-    int playerPosX = (int)playerPosition.x - (int)playerPosition.x % CHUNK_WIDTH;
-    int playerPosZ = (int)playerPosition.z - (int)playerPosition.z % CHUNK_DEPTH;
-
-    // Round of the positions into chunk coordinates 
-    int farLeftChunkX = (int)frustum->farLeftPoint.x - (int)frustum->farLeftPoint.x % CHUNK_WIDTH;
-    int farLeftChunkZ = (int)frustum->farLeftPoint.z - (int)frustum->farLeftPoint.z % CHUNK_DEPTH;
-
-    int farRightChunkX = (int)frustum->farRightPoint.x - (int)frustum->farRightPoint.x % CHUNK_WIDTH;   
-    int farRightChunkZ = (int)frustum->farRightPoint.z - (int)frustum->farRightPoint.z % CHUNK_DEPTH;
-
-    int nearLeftChunkX = (int)frustum->nearLeftPoint.x - (int)frustum->nearLeftPoint.x % CHUNK_WIDTH;
-    int nearLeftChunkZ = (int)frustum->nearLeftPoint.z - (int)frustum->nearLeftPoint.z % CHUNK_DEPTH;
-
-    int nearRightChunkX = (int)frustum->nearRightPoint.x - (int)frustum->nearRightPoint.x % CHUNK_WIDTH;
-    int nearRightChunkZ = (int)frustum->nearRightPoint.z - (int)frustum->nearRightPoint.z % CHUNK_DEPTH;
-
-    // Calculate which are the min and max in x and z of the positions
-    // the result will be the area we loop through and render the chunks falling inside these coordinates
-    int topMinX = (farLeftChunkX < farRightChunkX) ? farLeftChunkX : farRightChunkX; 
-    int bottomMinX = (nearLeftChunkX < nearRightChunkX) ? nearLeftChunkX : nearRightChunkX;
-    int minX = (topMinX < bottomMinX) ? topMinX : bottomMinX;
-    
-    int topMinZ = (farLeftChunkZ < farRightChunkZ) ? farLeftChunkZ : farRightChunkZ; 
-    int bottomMinZ = (nearLeftChunkZ < nearRightChunkZ) ? nearLeftChunkZ : nearRightChunkZ;
-    int minZ = (topMinZ < bottomMinZ) ? topMinZ : bottomMinZ;
-
-    int topMaxX = (farLeftChunkX < farRightChunkX) ? farRightChunkX : farLeftChunkX; 
-    int bottomMaxX = (nearLeftChunkX < nearRightChunkX) ? nearRightChunkX : nearLeftChunkX;
-    int maxX = (topMaxX < bottomMaxX) ? bottomMaxX : topMaxX;
-
-    int topMaxZ = (farLeftChunkZ < farRightChunkZ) ? farRightChunkZ : farLeftChunkZ; 
-    int bottomMaxZ = (nearLeftChunkZ < nearRightChunkZ) ? nearRightChunkZ : nearLeftChunkZ;
-    int maxZ = (topMaxZ < bottomMaxZ) ? bottomMaxZ : topMaxZ;
-
     renderList.clear();
 
-    for (int z = minZ; z <= maxZ; z += CHUNK_DEPTH)
+    // loop through the area of loaded chunks and check if they are inside the frustum
+    for (int z = playerPosition.z / CHUNK_DEPTH - VIEW_DISTANCE; z < playerPosition.z / CHUNK_DEPTH + VIEW_DISTANCE; z++)
     {
-	for (int x = minX; x <= maxX; x += CHUNK_WIDTH)
+	for (int x = playerPosition.x / CHUNK_WIDTH - VIEW_DISTANCE; x < playerPosition.x / CHUNK_WIDTH + VIEW_DISTANCE; x++)
 	{
-	    if (frustum->pointIsInsideFrustum(vec3(x, 0, z)))
+	    if (x >= 0 && z >= 0 && frustum->pointIsInsideFrustum(vec3(x * CHUNK_WIDTH, 0, z * CHUNK_DEPTH), vec3(x * CHUNK_WIDTH + CHUNK_WIDTH, CHUNK_HEIGHT, z * CHUNK_DEPTH + CHUNK_DEPTH)))
 	    {
-		renderList.push_back(vec3(x, 0, z));
-	    }
-	    else if (frustum->pointIsInsideFrustum(vec3(x + CHUNK_WIDTH, 0, z)))
-	    {
-		renderList.push_back(vec3(x, 0, z));
-	    }
-	    else if (frustum->pointIsInsideFrustum(vec3(x, 0, z + CHUNK_DEPTH)))
-	    {
-		renderList.push_back(vec3(x, 0, z));
-	    }
-	    else if (frustum->pointIsInsideFrustum(vec3(x + CHUNK_WIDTH, 0, z + CHUNK_DEPTH)))
-	    {
-		renderList.push_back(vec3(x, 0, z));
+		renderList.push_back(vec3(x * CHUNK_WIDTH, 0, z * CHUNK_DEPTH));
 	    }
 	}
     }
-
-    renderList.push_back(vec3(playerPosX, 0, playerPosZ));
 }
 
-void World::changeBlock(vec3 pos, vec3 direction, int blockType)
+void World::changeBlock(vec3 pos, int blockType)
 {
-    vec3 blockPos = VectorAdd(pos, direction);
-
-    Chunk* c = getChunkAtPosition(blockPos); 
+    Chunk* c = getChunkAtPosition(pos); 
 
     if (c != NULL)
     {
-	blockPos.x = (int)blockPos.x % CHUNK_WIDTH;
-	blockPos.y = (int)blockPos.y % CHUNK_HEIGHT;
-	blockPos.z = (int)blockPos.z % CHUNK_DEPTH;
-
-	if (c->setBlock(blockPos, blockType))
+	pos.x = (int)pos.x % CHUNK_WIDTH;
+	pos.y = (int)pos.y % CHUNK_HEIGHT;
+	pos.z = (int)pos.z % CHUNK_DEPTH;
+	
+	if (c->setBlock(pos, blockType))
 	{
 	    _updateList.push_back(c);
 	}
-	else
-	{
-	    blockPos = VectorAdd(pos, ScalarMult(direction, 2.0f));
-	    
-	    Chunk* c = getChunkAtPosition(blockPos);
-	    
-	    if (c != NULL)
-	    {
-		blockPos.x = (int)blockPos.x % CHUNK_WIDTH;
-		blockPos.y = (int)blockPos.y % CHUNK_HEIGHT;
-		blockPos.z = (int)blockPos.z % CHUNK_DEPTH;
-		
-		if (c->setBlock(blockPos, blockType))
-		    _updateList.push_back(c);		    
-	    }
-	}
-    }
+    }    
 }
 
 void World::_generateWorld()
 {
-    std::fstream chunksFile;
+    //std::fstream chunksFile;
     chunksFile.open("chunks.txt", std::fstream::out | std::fstream::trunc);
     chunksFile.close();
+    chunksFile.open("chunks.txt", std::ios::in | std::ios::out);
     
     _generateHeightmap();
     
@@ -263,7 +201,7 @@ void World::_generateHeightmap()
 
     x1 /= 10;
     x2 /= 10;
-    z1 /= 50;
+    z1 /= 100;
 
     for(int x = 0; x < heightmap.width; x++)
     {
@@ -276,7 +214,7 @@ void World::_generateHeightmap()
 
 void World::_createChunk(int detail, int x, int z)
 {
-    if (x >= 0 && z >= 0 && x < heightmap.width && z <= heightmap.height)
+    if (x >= 0 && z >= 0 && x <= heightmap.width - CHUNK_WIDTH && z <= heightmap.height - CHUNK_DEPTH)
     {
 	if (createdChunks->get(vec3(x, 0, z)) != NULL)
 	{
@@ -295,11 +233,11 @@ void World::_createChunk(int detail, int x, int z)
 
 void World::_loadChunk(int detail, int x, int z)
 {
-    if (x >= 0 && z >= 0)
+    if (x >= 0 && z >= 0 && x <= heightmap.width - CHUNK_WIDTH && z <= heightmap.height - CHUNK_DEPTH)
     {
 	Chunk* c = new Chunk(_program, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_DEPTH, x, z, heightmap.width);
 	
-	c->loadChunk();
+	c->loadChunk(chunksFile);
 
 	chunks->put(c->getPos(), c);
 	

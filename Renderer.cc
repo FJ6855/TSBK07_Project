@@ -18,6 +18,8 @@ Renderer::Renderer(Logic* logic)
     _skyboxShader = loadShaders("skyboxShader.vert", "skyboxShader.frag");
 
     _ballShader = loadShaders("ballShader.vert", "ballShader.frag");
+
+    _plainShader = loadShaders("plainShader.vert", "plainShader.frag");
        
     printError("load shaders");
 
@@ -33,7 +35,7 @@ Renderer::Renderer(Logic* logic)
  
     glBindTexture(GL_TEXTURE_2D, _skyboxTexture);
 
-    glUniform1i(glGetUniformLocation(_skyboxShader, "texUnit"), 0);
+    glUniform1i(glGetUniformLocation(_skyboxShader, "texUnit"), 0); 
 
     LoadTGATextureSimple("skyboxFog.tga", &_skyboxTexture);
 
@@ -59,6 +61,21 @@ Renderer::Renderer(Logic* logic)
 
     _ballModel = LoadModelPlus("sphere.obj");
 
+    // cube for targeting
+
+    _cubeModel = LoadModelPlus("cubeplus.obj");
+
+    glUseProgram(_plainShader);
+
+    glGenVertexArrays(1, &_cubeVao);
+    glGenBuffers(1, &_cubeVbo);
+
+    glBindVertexArray(_cubeVao);
+    glBindBuffer(GL_ARRAY_BUFFER, _cubeVbo);
+    glBufferData(GL_ARRAY_BUFFER, 24 * 3 * sizeof(GLfloat), cubeFrame, GL_STATIC_DRAW);
+    glVertexAttribPointer(glGetAttribLocation(_plainShader, "inPosition"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
+    glEnableVertexAttribArray(glGetAttribLocation(_plainShader, "inPosition"));
+
     printError("load model");
     
     _initSystems();
@@ -79,7 +96,9 @@ void Renderer::_initSystems()
 
     glUseProgram(_ballShader);
     glUniformMatrix4fv(glGetUniformLocation(_ballShader, "projectionMatrix"), 1, GL_TRUE, _projectionMatrix.m);
-    
+
+    glUseProgram(_plainShader);
+    glUniformMatrix4fv(glGetUniformLocation(_plainShader, "projectionMatrix"), 1, GL_TRUE, _projectionMatrix.m);   
 }
 
 void Renderer::render()
@@ -119,14 +138,9 @@ void Renderer::render()
     glBindTexture(GL_TEXTURE_2D, stoneTexture);
 
     glUniformMatrix4fv(glGetUniformLocation(_shader, "viewMatrix"), 1, GL_TRUE, _viewMatrix.m);
-    
-    vec3 playerPos =_logic->getPlayer()->getPosition();
-    int playerX = playerPos.x / 16;
-    int playerZ = playerPos.z / 16;
 
-    vec3 PointLightColor = vec3(1.0, 0.0, 0.0);
+    vec3 PointLightColor = vec3(1.0, 1.0, 1.0);
     vec3 PointLightPos = _logic->getPlayer()->getPosition();
-    PointLightPos.y += 1.5;
 
     glUniform3fv(glGetUniformLocation(_shader, "PointLightPos"), 1, &PointLightPos.x);
     glUniform3fv(glGetUniformLocation(_shader, "PointLightColor"), 1, &PointLightColor.x);
@@ -158,24 +172,26 @@ void Renderer::render()
     //printf("render chunk count: %i\n", chunkCount);
     //printf("render count: %i\n", loopCount);
 
-    //balls
-    glUseProgram(_ballShader);
-    
-    glUniform3fv(glGetUniformLocation(_ballShader, "PointLightPos"), 1, &PointLightPos.x);
-    glUniform3fv(glGetUniformLocation(_ballShader, "PointLightColor"), 1, &PointLightColor.x);
- 
-    glUniformMatrix4fv(glGetUniformLocation(_ballShader, "viewMatrix"), 1, GL_TRUE, _viewMatrix.m);
-    for(int i = 0; i < 15; i++)
-    {
-	if(_logic->getBall(i) != NULL)
-	{
-	    _modelMatrix = T(_logic->getBall(i)->getPosition().x, _logic->getBall(i)->getPosition().y, _logic->getBall(i)->getPosition().z);
+    // cube for targeting
+    glUseProgram(_plainShader);
+
+    glLineWidth(4.0f);
+
+    glUniformMatrix4fv(glGetUniformLocation(_plainShader, "viewMatrix"), 1, GL_TRUE, _viewMatrix.m);
+
+    if (_logic->getRenderTarget())
+    {    
+	_modelMatrix = Mult(T(_logic->getTargetPosition().x,  _logic->getTargetPosition().y, _logic->getTargetPosition().z), S(1.005f, 1.001f, 1.001f));
 	
-	    glUniformMatrix4fv(glGetUniformLocation(_ballShader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
-    
-	    DrawModel(_ballModel, _ballShader, "inPosition", "inNormal", NULL);
-	}
+	glUniformMatrix4fv(glGetUniformLocation(_plainShader, "modelMatrix"), 1, GL_TRUE, _modelMatrix.m);
+	
+	glBindVertexArray(_cubeVao);
+
+	glDrawArrays(GL_LINES, 0, 24);
+
+	//DrawWireframeModel(_cubeModel, _plainShader, "inPosition", NULL, NULL);
     }
+
     glutSwapBuffers();
 }
 

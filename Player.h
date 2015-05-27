@@ -21,6 +21,9 @@ public:
     void setYVel(float velocity);
     float getYVel();
 
+    vec3 getMin();
+    vec3 getMax();
+
     void jump();
 
     float getCollisionOffset();
@@ -28,9 +31,13 @@ public:
 private:
     vec3 _position;
     vec3 _direction;
+
     float _yVel;
+
     bool _walking;
-    float _collisionOffset;
+
+    vec3 _min;
+    vec3 _max;
 };
 
 #endif

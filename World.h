@@ -46,7 +46,7 @@ public:
     Chunk* getChunkAtPosition(vec3 position);
     bool isBlockActive(vec3 pos);
 
-    void changeBlock(vec3 pos, vec3 direction, int blockType);
+    void changeBlock(vec3 pos, int blockType);
 
     void update();
 
@@ -69,6 +69,8 @@ private:
 
     void _createChunk(int detail, int x, int z);
     void _loadChunk(int detail, int x, int z);
+
+    std::fstream chunksFile;
 };
 
 #endif

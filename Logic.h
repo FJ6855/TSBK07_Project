@@ -33,21 +33,18 @@ public:
     vec3 getCameraLookAt();
     vec3 getCameraUp();
 
+    vec3 getTargetPosition();
+    bool getRenderTarget();
+
     World* getWorld();
 
     Player* getPlayer();
-
-    Ball* getBall(int index);
 
     void createWorld(GLuint program);
 
     void setFreeCam(bool value);
 
     void changeBlock(int blockType);
-    //void removeBlock();
-    //void addBlock();
-
-    void shootBall();    
   
 private:
     bool _freeCam;
@@ -55,6 +52,9 @@ private:
     vec3 _cameraPos;
     vec3 _cameraLookAt;
     vec3 _cameraUp;
+
+    vec3 _targetPosition;
+    bool _renderTarget;
 
     vec3 _forward;
 
@@ -64,17 +64,13 @@ private:
 
     Frustum* _frustum;
 
-    Ball* _balls[15];
-
-    int _ballIndex;
-
     void _updateFrustum();
 
     vec3 _collision(vec3 oldPos, vec3 newPos);
+
     void _physics();
 
-    void _ballMovement();
-    vec3 _ballCollision(vec3 pos, vec3 amount);
+    void _updateTargetPosition();
 };
 
 #endif

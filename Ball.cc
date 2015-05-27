@@ -7,16 +7,11 @@ Ball::Ball()
 
     _direction = { 0.0f, 0.0f, 0.0f };
 }
-Ball::Ball(vec3 pos, vec3 lookAt)
+Ball::Ball(vec3 pos, vec3 direction, vec3 speed)
 {
-    _direction = Normalize(lookAt);
-    
-    lookAt = Normalize(VectorSub(lookAt, pos));
-    
-    _position.x = pos.x + lookAt.x;
-    _position.y = pos.y + 1.0f;
-    _position.z = pos.z + lookAt.z;
-
+    _position = pos;
+    _direction = direction;
+    _speed = speed;
 }
 
 vec3 Ball::getPosition()

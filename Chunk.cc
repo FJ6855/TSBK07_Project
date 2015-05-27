@@ -1,4 +1,5 @@
 #include "Chunk.h"
+#include <ctime>
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
@@ -16,7 +17,7 @@ Chunk::Chunk(GLuint program, TextureData* heightmap, int chunkWidth, int chunkHe
     _pos = vec3(x, 0, z);
 
     _activeBlocks.resize(chunkWidth * chunkHeight * chunkDepth);
-    
+
     _setHeightmap(heightmap, x, z);
 
     _numVertices = 0;
@@ -145,7 +146,9 @@ void Chunk::generateChunk()
 	{
 	    for (int z = 0; z < _chunkDepth; z++)
 	    {		
-		if (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth) && !_blockIsSurrounded(x, y, z))
+		int index = z + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
+		
+		if (_activeBlocks.at(index) && !_blockIsSurrounded(x, y, z))
 		{
 		    for(int i = 0; i < 36 ; i++)
 		    {
@@ -154,10 +157,8 @@ void Chunk::generateChunk()
 			_vertices[_numVertices + i].pos.y += y;
 			_vertices[_numVertices + i].pos.z += z;
 			
-			
-			_vertices[_numVertices + i].texCoord.x += (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth) - 1) * 0.5;						
+			_vertices[_numVertices + i].texCoord.x += (_activeBlocks.at(index) - 1) * 0.5;
 		    }
-
 		    //Ambient occlusion vertical		    
 		    if(z != 0 && x != 0 && _activeBlocks.at(z-1 + (x-1) * _chunkDepth + y * _chunkDepth * _chunkWidth))
 		    {
@@ -362,16 +363,56 @@ bool Chunk::setBlock(vec3 pos, int blockType)
     }
 }
 
-void Chunk::saveChunk(bool overwrite)
+bool Chunk::checkCollision(vec3 min, vec3 max)
 {
-    std::fstream file;
+    for (int y = 0; y < _chunkHeight; y++)
+    {
+	for (int x = 0; x < _chunkWidth; x++)
+	{
+	    for (int z = 0; z < _chunkDepth; z++)
+	    {		
+		int index = z + x * _chunkDepth + y * _chunkDepth * _chunkWidth;
+		
+		if (_activeBlocks.at(index))
+		{
+		    vec3 bMin = vec3(x + _pos.x, y + _pos.y, z + _pos.z);
+		    vec3 bMax = vec3(bMin.x + 1, bMin.y + 1, bMin.z + 1);
+		    
+		    if (max.x > bMin.x && min.x < bMax.x &&
+			max.y > bMin.y && min.y < bMax.y &&
+			max.z > bMin.z && min.z < bMax.z)
+		    {
+			return true;
+		    }
+		}
+	    }
+	}
+    }	
 
-    file.open("chunks.txt", std::ios::in | std::ios::out);
+    return false;
+}
+
+char rotate(char s, int shifts)
+{
+    char t = s << 8 - shifts;
+
+    s = s >> shifts;
+
+    return s | t;
+}
+
+void Chunk::saveChunk(std::fstream& file, bool overwrite)
+{
+    //std::fstream file;
+
+    //file.open("chunks.txt", std::ios::in | std::ios::out);
 
     if (file.is_open())
     {
 	if (overwrite)
-	{	    
+	{	   
+	    file.seekg(0, std::ios_base::beg);
+ 
 	    int id = -1;
 	    char shit = '0';
 	    
@@ -421,20 +462,22 @@ void Chunk::saveChunk(bool overwrite)
 	    file << (int)_activeBlocks.at(i);
 	}
 	
-	file.close();
+//	file.close();
     }
 }
 
-void Chunk::loadChunk()
+void Chunk::loadChunk(std::fstream& file)
 {
-    std::ifstream file;
+    //std::ifstream file;
 
-    file.open("chunks.txt");
+    //file.open("chunks.txt");
 
     if (file.is_open())
     {	
 	int id = -1;
 	char shit = '0';
+
+	file.seekg(0, std::ios_base::beg);
 
 	while (file.get(shit))
 	{      	    
@@ -468,7 +511,5 @@ void Chunk::loadChunk()
 	    else if (blockType == '2')
 		_activeBlocks.at(i) = 2;
 	}
-
-	file.close();
     }
 }

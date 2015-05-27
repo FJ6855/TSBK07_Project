@@ -951,7 +951,7 @@ void DrawWireframeModel(Model *m, GLuint program, char* vertexVariableName, char
 			else
 				fprintf(stderr, "DrawWireframeModel warning: '%s' not found in shader!\n", texCoordVariableName);
 		}
-		glDrawElements(GL_LINE_STRIP, m->numIndices, GL_UNSIGNED_INT, 0L);
+		glDrawElements(GL_LINES, m->numIndices, GL_UNSIGNED_INT, 0L);
 	}
 }
 	

@@ -2,6 +2,7 @@
 #define CHUNK_H
 
 #include <vector>
+#include <fstream>
 #include "Vertex.h"
 #include "MathUtils.h"
 #include "GL/gl.h"
@@ -78,8 +79,10 @@ public:
 
     bool setBlock(vec3 pos, int blockType);
 
-    void saveChunk(bool overwrite);
-    void loadChunk();
+    bool checkCollision(vec3 min, vec3 max);
+
+    void saveChunk(std::fstream& file, bool overwrite);
+    void loadChunk(std::fstream& file);
 
 private: 
     int _chunkId;

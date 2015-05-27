@@ -12,13 +12,18 @@
 #define fovDegree 80.0
 #define aspectRatio 16.0 / 9.0
 
+struct Plane
+{
+    vec3 normal;
+    vec3 corner;
+};
+
 class Frustum
 {
 public:
     Frustum();
 
-    bool pointIsInsideFrustum(vec3 p);
-    bool lineIntersectsFrustum(vec3 lineDir, vec3 linePoint);
+    bool pointIsInsideFrustum(vec3 min, vec3 max);
 
     void updateFrustum(vec3 cameraPos, vec3 cameraLookAt, vec3 cameraUp);
     
@@ -28,21 +33,7 @@ public:
     float farHeight;
     float farWidth;
 
-    vec3 farLeftPoint;
-    vec3 farRightPoint;
-
-    vec3 nearLeftPoint;
-    vec3 nearRightPoint;
-
-    vec3 leftEdge;
-    vec3 rightEdge;
-    vec3 topEdge;
-    vec3 bottomEdge;
-
-    vec3 leftEdgeNormal;
-    vec3 rightEdgeNormal;
-    vec3 topEdgeNormal;
-    vec3 bottomEdgeNormal;
+    Plane* _planes;
 };
 
 #endif

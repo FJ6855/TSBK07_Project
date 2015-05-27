@@ -23,13 +23,6 @@ Logic::Logic()
 
     _frustum->farHeight = 2 * tan((fovDegree / 2) * 3.14 / 180.0f) * far;
     _frustum->farWidth = _frustum->farHeight * aspectRatio;
-
-    _ballIndex = 0;
-
-    for(int i = 0; i < 15; i++)
-    {
-	_balls[i] = NULL;
-    }
 }
 
 Logic::~Logic()
@@ -62,6 +55,10 @@ void Logic::update()
 	
 	_world->updateRenderList(_frustum, _player->getPosition());
     }
+
+    _updateTargetPosition();
+
+    //printf("%f, %f, %f\n", _player->getPosition().x, _player->getPosition().y, _player->getPosition().z);
 }
 
 void Logic::createWorld(GLuint program)
@@ -108,48 +105,45 @@ void Logic::_physics()
 
 	movePlayerY(yvel);
     }
-
-    _ballMovement();
-
 }
 
 void Logic::moveCamera(float amount)
 {
-    vec3 viewVector = Normalize(VectorSub(_cameraLookAt, _cameraPos));
-    _cameraPos = VectorAdd(_cameraPos, viewVector * amount);
-    _cameraLookAt = VectorAdd(_cameraPos, viewVector);
+    vec3 viewVector = Normalize(_cameraLookAt - _cameraPos);
+    
+    _cameraPos = _cameraPos + viewVector * amount;
+    
+    _cameraLookAt = _cameraPos + viewVector;
 }
 
 void Logic::movePlayer(float amount)
 {
-    vec3 viewVector = Normalize(VectorSub(_cameraLookAt, _cameraPos));
+    vec3 viewVector = Normalize(_cameraLookAt - _cameraPos);
     viewVector.y = 0;
     viewVector = Normalize(viewVector);
 
-    _player->setPosition(_collision(_player->getPosition(), VectorAdd(_player->getPosition(), viewVector * amount)));
+    _player->setPosition(_collision(_player->getPosition(), _player->getPosition() + viewVector * amount));
    
-    viewVector = Normalize(VectorSub(_cameraLookAt, _cameraPos));
+    viewVector = Normalize(_cameraLookAt - _cameraPos);
     _cameraPos = _player->getPosition();
-    _cameraPos.y += 1.5;
-    _cameraLookAt = VectorAdd(_cameraPos, viewVector);   
+    _cameraLookAt = _cameraPos + viewVector;   
 }
 
 void Logic::movePlayerY(float amount)
 {
-    vec3 viewVector = Normalize(VectorSub(_cameraLookAt, _cameraPos));
+    vec3 viewVector = Normalize(_cameraLookAt - _cameraPos);
 
     vec3 moveVector = vec3(0.0f, amount, 0.0f);
 
-    _player->setPosition(_collision(_player->getPosition(), VectorAdd(_player->getPosition(), moveVector)));
+    _player->setPosition(_collision(_player->getPosition(), _player->getPosition() + moveVector));
    
     _cameraPos = _player->getPosition();
-    _cameraPos.y += 1.5;
-    _cameraLookAt = VectorAdd(_cameraPos, viewVector);   
+    _cameraLookAt = _cameraPos + viewVector;
 }
 
 void Logic::strafeCamera(float amount)
 {
-    vec3 viewVector = Normalize(VectorSub(_cameraLookAt, _cameraPos));
+    vec3 viewVector = Normalize(_cameraLookAt - _cameraPos);
     vec3 orthoViewVector;
     
     orthoViewVector.x = -viewVector.z;
@@ -157,14 +151,14 @@ void Logic::strafeCamera(float amount)
     orthoViewVector.y = 0;
     orthoViewVector = Normalize(orthoViewVector);
 
-    _cameraPos = VectorAdd(_cameraPos, orthoViewVector * amount);
+    _cameraPos = _cameraPos + orthoViewVector * amount;
 
-    _cameraLookAt = VectorAdd(viewVector, _cameraPos);
+    _cameraLookAt = viewVector + _cameraPos;
 }
 
 void Logic::strafePlayer(float amount)
 {
-    vec3 viewVector = Normalize(VectorSub(_cameraLookAt, _cameraPos));
+    vec3 viewVector = Normalize(_cameraLookAt - _cameraPos);
     vec3 orthoViewVector;
     
     orthoViewVector.x = -viewVector.z;
@@ -173,13 +167,13 @@ void Logic::strafePlayer(float amount)
     orthoViewVector = Normalize(orthoViewVector);
 
     vec3 playerPos = _player->getPosition();
-    playerPos = _collision(playerPos, VectorAdd(playerPos, orthoViewVector * amount));
+    playerPos = _collision(playerPos, playerPos + orthoViewVector * amount);
     
     _player->setPosition(playerPos);
     
     _cameraPos = _player->getPosition();
     _cameraPos.y += 1.5;
-    _cameraLookAt = VectorAdd(_cameraPos, viewVector);
+    _cameraLookAt = _cameraPos + viewVector;
 }
 
 void Logic::rotateCamera(float angleZ, float angleY)
@@ -189,23 +183,31 @@ void Logic::rotateCamera(float angleZ, float angleY)
     orthoViewVector.x = -viewVector.z;
     orthoViewVector.z = viewVector.x;
 
-    _cameraLookAt = VectorAdd(_cameraPos, MultVec3(Ry(angleY), viewVector));
-    viewVector = Normalize(VectorSub(_cameraLookAt, _cameraPos));
+    _cameraLookAt = _cameraPos + MultVec3(Ry(angleY), viewVector);
+    viewVector = Normalize(_cameraLookAt - _cameraPos);
 
-    _cameraLookAt = VectorAdd(_cameraPos, MultVec3(ArbRotate(orthoViewVector, angleZ), viewVector));
+    _cameraLookAt = _cameraPos + MultVec3(ArbRotate(orthoViewVector, angleZ), viewVector);
 }
 
 void Logic::changeBlock(int blockType)
 {   
-    vec3 position = _player->getPosition();
-    position.y += 1.5;
-    vec3 viewVector = Normalize(VectorSub(_cameraLookAt, _cameraPos));
-    
-    _world->changeBlock(position, viewVector, blockType);
+    _world->changeBlock(_targetPosition, blockType);
 }
 
 vec3 Logic::_collision(vec3 oldPos, vec3 newPos)
 {       
+    if (newPos.x < 5 * 16)
+	newPos.x = 5 * 16;
+
+    if (newPos.x > 2048 - 5 * 16)
+	newPos.x = 2048 - 5 * 16;
+    
+    if (newPos.z < 5 * 16)
+	newPos.z = 5 * 16;
+
+    if (newPos.z > 2048 - 5 * 16)
+	newPos.z = 2048 - 5 * 16;
+
     vec3 playerDirection = VectorSub(newPos, oldPos);
 
     playerDirection.x = (playerDirection.x > 0.0f) ? ceil(playerDirection.x) : floor(playerDirection.x);
@@ -213,97 +215,89 @@ vec3 Logic::_collision(vec3 oldPos, vec3 newPos)
     playerDirection.z = (playerDirection.z > 0.0f) ? ceil(playerDirection.z) : floor(playerDirection.z);
 
     _player->setDirection(playerDirection);
+    
+    vec3 tmpNew = newPos;
+    vec3 stupid = oldPos;
 
-    if (floor(newPos.y) != floor(oldPos.y))
-    {	
-	if (_world->isBlockActive(newPos))
-	{
-	    newPos.y = floor(oldPos.y);
+    stupid.y = newPos.y;
+    
+    _player->setPosition(stupid);
+    
+    // Chunk* c = _world->getChunkAtPosition(vec3(newPos.x + _player->getDirection().x * 0.4, newPos.x + _player->getDirection().y, newPos.z + _player->getDirection().z * 0.4)); 
+	
+    Chunk* c = _world->getChunkAtPosition(newPos);
 
-	    _player->setYVel(0.0f);
+    if (c != NULL)
+    {
+	if (c->checkCollision(_player->getMin(), _player->getMax()))
+	{	
+	    tmpNew.y = oldPos.y;
+		
+	    _player->setYVel(0);
 		
 	    _player->setWalking(true);
 	}
     }
 
-    if (floor(newPos.x + _player->getCollisionOffset() * playerDirection.x) != floor(oldPos.x))
-    {
-	vec3 offsetPos = newPos;
-	    
-	offsetPos.x += _player->getCollisionOffset() * playerDirection.x;	    
-
-	if (_world->isBlockActive(offsetPos))
-	{
-	    newPos.x = floor(oldPos.x);
-	    
-	    if (playerDirection.x == 1.0f)
-		newPos.x += 1.0f - _player->getCollisionOffset();
-	    else 
-		newPos.x += _player->getCollisionOffset();
-	}
-    }
+    stupid = oldPos;
 	
-    if (floor(newPos.z + _player->getCollisionOffset() * playerDirection.z) != floor(oldPos.z))
-    {	    
-	vec3 offsetPos = newPos;
-	    
-	offsetPos.z += _player->getCollisionOffset() * playerDirection.z;	    
+    stupid.x = newPos.x;
 
-	if (_world->isBlockActive(offsetPos))
-	{
-	    newPos.z = floor(oldPos.z);
-	    
-	    if (playerDirection.z == 1.0f)
-		newPos.z += 1.0f - _player->getCollisionOffset();
-	    else 
-		newPos.z += _player->getCollisionOffset();
+    _player->setPosition(stupid);
+
+    // c = _world->getChunkAtPosition(newPos);
+	
+    if (c != NULL)
+    {
+	if (c->checkCollision(_player->getMin(), _player->getMax()))
+	{	
+	    tmpNew.x = oldPos.x;
 	}
     }
 
-    return newPos;
-}
+    stupid = oldPos;
 
+    stupid.z = newPos.z;
 
-void Logic::shootBall()
-{
-    Ball* b = new Ball{getPlayer()->getPosition(), getCameraLookAt()};
+    _player->setPosition(stupid);
 
-    if(_ballIndex > 14)
-    {	
-	_ballIndex = 0;
-    }
-    printf("ballIndex %i\n", _ballIndex);
-    
-    if(_balls[_ballIndex] != NULL)
+    //  c = _world->getChunkAtPosition(newPos);
+	
+    if (c != NULL)
     {
-	delete _balls[_ballIndex];
-	_balls[_ballIndex] = NULL;
-    }
-    
-    _balls[_ballIndex] = b;
-    
-    _ballIndex++;
-
-}
-void Logic::_ballMovement()
-{
-    for(int i = 0; i < 15; i++)
-    {
-	Ball* b = _balls[i];
-	if(_balls[i] != NULL)
-	{
-	    vec3 newPos =  _ballCollision(b->getPosition(), VectorAdd(b->getPosition(), b->getDirection()));
-	    b->setPosition(newPos);
-
-	    printf("%f. %f. %f. \n,",b->getDirection().x, b->getDirection().y, b->getDirection().z);
+	if (c->checkCollision(_player->getMin(), _player->getMax()))
+	{	
+	    tmpNew.z = oldPos.z;
 	}
     }
-}
-vec3 Logic::_ballCollision(vec3 pos, vec3 amount)
-{
-    //collision
 
-    
+    return tmpNew;
+}
+
+void Logic::_updateTargetPosition()
+{    
+    //vec3 blockPos = VectorAdd(_cameraPos, Normalize(VectorSub(_cameraLookAt, _cameraPos)));
+ 
+    _targetPosition = _cameraPos + Normalize(_cameraLookAt - _cameraPos);
+
+    _targetPosition.x = (int)_targetPosition.x;
+    _targetPosition.y = (int)_targetPosition.y;
+    _targetPosition.z = (int)_targetPosition.z;
+
+    if (_world->isBlockActive(_targetPosition))	
+    {
+	_renderTarget = true;
+    }
+    else
+    {
+	_targetPosition = _cameraPos + Normalize(_cameraLookAt - _cameraPos) * 2.0f;
+	
+	_targetPosition.x = (int)_targetPosition.x;
+	_targetPosition.y = (int)_targetPosition.y;
+	_targetPosition.z = (int)_targetPosition.z;
+
+	_renderTarget = _world->isBlockActive(_targetPosition);
+    }
 }
 
 void Logic::setFreeCam(bool value)
@@ -331,6 +325,16 @@ vec3 Logic::getCameraUp()
     return _cameraUp;
 }
 
+vec3 Logic::getTargetPosition()
+{
+    return _targetPosition;
+}
+
+bool Logic::getRenderTarget()
+{
+    return _renderTarget;
+}
+
 World* Logic::getWorld()
 {
     return _world;
@@ -339,9 +343,4 @@ World* Logic::getWorld()
 Player* Logic::getPlayer()
 {
     return _player;
-}
-
-Ball* Logic::getBall(int index)
-{
-    return _balls[index];
 }

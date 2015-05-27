@@ -20,6 +20,7 @@ private:
     float _movementSpeed;
 
     bool _mouseDown;
+    bool _keyDown;
 
     int _activeBlockType;
 };

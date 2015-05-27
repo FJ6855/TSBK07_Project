@@ -8,6 +8,45 @@
 #include "MathUtils.h"
 #include "Logic.h"
 
+vec3 cubeFrame[24] =
+{
+    vec3(0.0f, 0.0f, 0.0f),
+    vec3(0.0f, 1.0f, 0.0f),
+
+    vec3(0.0f, 1.0f, 0.0f),
+    vec3(1.0f, 1.0f, 0.0f),
+
+    vec3(1.0f, 1.0f, 0.0f),
+    vec3(1.0f, 0.0f, 0.0f),
+
+    vec3(1.0f, 0.0f, 0.0f),
+    vec3(0.0f, 0.0f, 0.0f),
+
+    vec3(0.0f, 0.0f, 0.0f),
+    vec3(0.0f, 0.0f, 1.0f),
+
+    vec3(0.0f, 0.0f, 1.0f),
+    vec3(0.0f, 1.0f, 1.0f),
+
+    vec3(0.0f, 1.0f, 1.0f),
+    vec3(0.0f, 1.0f, 0.0f),
+
+    vec3(0.0f, 1.0f, 1.0f),
+    vec3(1.0f, 1.0f, 1.0f),
+
+    vec3(1.0f, 1.0f, 1.0f),
+    vec3(1.0f, 0.0f, 1.0f),
+
+    vec3(1.0f, 0.0f, 1.0f),
+    vec3(0.0f, 0.0f, 1.0f),
+
+    vec3(1.0f, 0.0f, 1.0f),
+    vec3(1.0f, 0.0f, 0.0f),
+
+    vec3(1.0f, 1.0f, 1.0f),
+    vec3(1.0f, 1.0f, 0.0f),
+};
+
 class Renderer
 {
 public:
@@ -43,6 +82,12 @@ private:
     
     GLuint _ballShader;
 
+    Model* _cubeModel;
+
+    GLuint _plainShader;
+
+    GLuint _cubeVao;
+    GLuint _cubeVbo;
 };
 
 #endif
