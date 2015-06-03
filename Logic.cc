@@ -52,6 +52,8 @@ void Logic::update()
        
     if (_freeCam)
     {		
+	_world->loadChunks(_cameraPos);
+	
 	_world->updateRenderList(_frustum, _cameraPos);
     }
     else
@@ -65,7 +67,7 @@ void Logic::update()
 
     _updateTargetPosition();
 
-    printf("%f, %f, %f\n", _player->getPosition().x, _player->getPosition().y, _player->getPosition().z);
+    //printf("%f, %f, %f\n", _player->getPosition().x, _player->getPosition().y, _player->getPosition().z);
 }
 
 void Logic::createWorld(GLuint program)
@@ -258,7 +260,7 @@ void Logic::_collision(vec3 oldPos, vec3& newPos)
 
     Chunk* chunks[4];
 
-    chunks[0]= _world->getChunkAtPosition(oldPos);
+    chunks[0]= _world->getChunkAtPosition(newPos);
 
     if (chunks[0] != NULL)
     {
@@ -272,16 +274,7 @@ void Logic::_collision(vec3 oldPos, vec3& newPos)
 	{
 	    if (chunks[i] != NULL)
 	    {
-		vec3 tmpNewPos = oldPos;
-	
-		tmpNewPos.x = newPos.x;
-
-		_player->setPosition(tmpNewPos);
-	
-		if (chunks[i]->checkCollision(tmpNewPos, _player->getMin(), _player->getMax()))
-		{	
-		    newPos.x = oldPos.x;
-		}	    
+		vec3 tmpNewPos = oldPos;	    
 
 		tmpNewPos = oldPos;
 
@@ -289,7 +282,7 @@ void Logic::_collision(vec3 oldPos, vec3& newPos)
     
 		_player->setPosition(tmpNewPos);
     
-		if (chunks[i]->checkCollision(tmpNewPos, _player->getMin(), _player->getMax()))
+		if (chunks[i]->checkCollision(_player->getMin(), _player->getMax()))
 		{	
 		    newPos.y = oldPos.y;
 		
@@ -299,12 +292,23 @@ void Logic::_collision(vec3 oldPos, vec3& newPos)
 		}
 
 		tmpNewPos = oldPos;
+	
+		tmpNewPos.x = newPos.x;
+
+		_player->setPosition(tmpNewPos);
+	
+		if (chunks[i]->checkCollision(_player->getMin(), _player->getMax()))
+		{	
+		    newPos.x = oldPos.x;
+		}
+
+		tmpNewPos = oldPos;
 
 		tmpNewPos.z = newPos.z;
 
 		_player->setPosition(tmpNewPos);
 
-		if (chunks[i]->checkCollision(tmpNewPos, _player->getMin(), _player->getMax()))
+		if (chunks[i]->checkCollision(_player->getMin(), _player->getMax()))
 		{	
 		    newPos.z = oldPos.z;
 		}
@@ -475,7 +479,7 @@ bool Logic::_ballToBallCollision(vec3 pos1, vec3 pos2, vec3& dir1, vec3& dir2)
     return false;
 }
 
-void Logic::_getChunksAroundChunk(vec3 pos, vec3 direction, Chunk* chunks[4])
+void Logic::_getChunksAroundChunk(vec3 pos, vec3 direction, Chunk* chunks[9])
 {
     vec3 tmp = pos;
 

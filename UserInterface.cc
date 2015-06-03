@@ -112,8 +112,8 @@ void UserInterface::moveMouse(int mouseX, int mouseY, int windowWidth, int windo
 
   glutWarpPointer(midX, midY);
 
-  float angleY = (float)(midX - mouseX) / 2000;
-  float angleZ = (float)(midY - mouseY) / 2000;
+  float angleY = (float)(midX - mouseX) / 3000;
+  float angleZ = (float)(midY - mouseY) / 3000;
  
   if (mouseY / windowHeight > 0.2) angleZ = 0.0f;
   

@@ -3,7 +3,7 @@
 
 Player::Player()
 {
-    _position = vec3(5 * 16 + 1.0f, 20.0f, 5 * 16 + 1.0f);
+    _position = vec3(64 * 16 + 1.0f, 20.0f, 64 * 16 + 1.0f);
 
     _direction = vec3(0.0f, 0.0f, 0.0f);
 
@@ -11,8 +11,8 @@ Player::Player()
 
     _walking = false;
 
-    _min = vec3(_position.x - 0.4f, _position.y - 2.0f, _position.z - 0.4f);
-    _max = vec3(_min.x + 0.8f, _min.y + 2.2f, _min.z + 0.8f);
+    _min = vec3(_position.x - 0.4f, _position.y - 1.5f, _position.z - 0.4f);
+    _max = vec3(_min.x + 0.8f, _min.y + 1.7f, _min.z + 0.8f);
 }
 
 vec3 Player::getPosition()
@@ -24,8 +24,8 @@ void Player::setPosition(vec3 position)
 {
     _position = position;
 
-    _min = vec3(_position.x - 0.4f, _position.y - 2.0f, _position.z - 0.4f);
-    _max = vec3(_min.x + 0.8f, _min.y + 2.2f, _min.z + 0.8f);
+    _min = vec3(_position.x - 0.4f, _position.y - 1.5f, _position.z - 0.4f);
+    _max = vec3(_min.x + 0.8f, _min.y + 1.7f, _min.z + 0.8f);
 }
 
 vec3 Player::getDirection()

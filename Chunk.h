@@ -8,7 +8,7 @@
 #include "GL/gl.h"
 #include "LoadTGA.h"
 
-static float lightValue = 0.85;
+static float lightValue = 0.7;
 
 #define texX5  0.375
 #define texX0  0.125
@@ -79,7 +79,7 @@ public:
 
     bool setBlock(vec3 pos, int blockType);
 
-    bool checkCollision(vec3 pos, vec3 min, vec3 max);
+    bool checkCollision(vec3 min, vec3 max);
     bool checkCollision(vec3 pos, float radius);
 
     void saveChunk(std::fstream& file, bool overwrite);

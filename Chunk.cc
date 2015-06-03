@@ -134,7 +134,7 @@ bool Chunk::_blockIsSurrounded(int x, int y, int z)
 void Chunk::generateChunk()
 {
     Vertex* _vertices = new Vertex[(_chunkHeight * _chunkWidth * _chunkDepth) * 36];
-
+    
     _numVertices = 0;
     
     float lightModify = 0.85;
@@ -364,9 +364,9 @@ bool Chunk::setBlock(vec3 pos, int blockType)
     }
 }
 
-bool Chunk::checkCollision(vec3 pos, vec3 min, vec3 max)
+bool Chunk::checkCollision(vec3 min, vec3 max)
 {
-    vec3 relativePos = pos - _pos;
+    vec3 relativePos = min - _pos;
 
     relativePos.x = floor(relativePos.x);
     relativePos.y = floor(relativePos.y);
@@ -379,21 +379,21 @@ bool Chunk::checkCollision(vec3 pos, vec3 min, vec3 max)
     
     if (relativePos.y < 1.0)
 	relativePos.y = 1.0;
-    else if (relativePos.y > 14.0)
-	relativePos.y = 14.0;
+    else if (relativePos.y > 13.0)
+	relativePos.y = 13.0;
 
     if (relativePos.z < 1.0)
 	relativePos.z = 1.0;
     else if (relativePos.z > 14.0)
 	relativePos.z = 14.0;
 
-    for (int y = relativePos.y - 1; y <= relativePos.y + 1; y++)
+    for (int y = relativePos.y - 1; y <= relativePos.y + 2; y++)
     {
 	for (int x = relativePos.x - 1; x <= relativePos.x + 1; x++)
 	{
 	    for (int z = relativePos.z - 1; z <= relativePos.z + 1; z++)
 	    {		
-		if (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth))
+		if (_activeBlocks.at(z + x * _chunkDepth + y * _chunkDepth * _chunkWidth) != 0)
 		{
 		    vec3 bMin = vec3(x + _pos.x, y + _pos.y, z + _pos.z);
 		    vec3 bMax = vec3(bMin.x + 1, bMin.y + 1, bMin.z + 1);
@@ -464,7 +464,7 @@ bool Chunk::checkCollision(vec3 pos, float radius)
 
 		    if (distSquared <= radius * radius)
 			return true;
-			}
+		}
 	    }
 	}
     }
@@ -570,7 +570,7 @@ void Chunk::loadChunk(std::fstream& file)
 	char blockType;
 
 	file.get(shit);
-
+	
 	for (int i = 0; i < _activeBlocks.size(); i++)
 	{
 	    file.get(blockType);

@@ -144,7 +144,10 @@ void Renderer::render()
 
     glUniform3fv(glGetUniformLocation(_shader, "PointLightPos"), 1, &PointLightPos.x);
     glUniform3fv(glGetUniformLocation(_shader, "PointLightColor"), 1, &PointLightColor.x);
-    glUniform3fv(glGetUniformLocation(_shader, "CameraPos"), 1, &_logic->getCameraPos().x);
+
+    vec3 cameraPos = _logic->getCameraPos();
+    
+    glUniform3fv(glGetUniformLocation(_shader, "CameraPos"), 1, &cameraPos.x);
     
     int chunkCount = 0;
     int loopCount = 0;
@@ -175,9 +178,10 @@ void Renderer::render()
     //balls
     glUseProgram(_ballShader);
 
-    glUniform3fv(glGetUniformLocation(_ballShader, "cameraPos"), 1, &_logic->getCameraPos().x);
+    glUniform3fv(glGetUniformLocation(_ballShader, "cameraPos"), 1, &cameraPos.x);
  
     glUniformMatrix4fv(glGetUniformLocation(_ballShader, "viewMatrix"), 1, GL_TRUE, _viewMatrix.m);
+    
     for(int i = 0; i < 100; i++)
     {
 	if(_logic->getBall(i) != NULL)
